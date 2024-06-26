@@ -1,0 +1,11 @@
+{
+  "service": "CREATOR",
+  "cspDomains": {
+    "connect-src": [
+      "https://api.iconify.design",
+      "https://api-dev-minimal-v510.vercel.app",
+      "https://api.unisvg.com",
+      "https://api.simplesvg.com"
+    ]
+  }
+}
