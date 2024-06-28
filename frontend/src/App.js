@@ -35,6 +35,8 @@ import ThemeProvider from 'src/theme';
 import { LocalizationProvider } from 'src/locales';
 // hooks
 import { useScrollToTop } from 'src/hooks/use-scroll-to-top';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 // components
 import ProgressBar from 'src/components/progress-bar';
 

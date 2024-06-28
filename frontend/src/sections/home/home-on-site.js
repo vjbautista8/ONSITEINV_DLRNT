@@ -34,6 +34,9 @@ import TourSort from './tour-sort';
 import TourSearch from './tour-search';
 import TourFilters from './tour-filters';
 import TourFiltersResult from './tour-filters-result';
+import TransitionsDialogLeft from './transitions-dialog-left';
+import SwipeRightCar from './SwipeRightCar';
+import TransitionsDialogRight from './transitions-dialog-right';
 
 // ----------------------------------------------------------------------
 
@@ -74,8 +77,15 @@ const INVENTORY_SORT_OPTIONS = [
 export default function TourListView() {
   const theme = useTheme();
   useScrollToTop();
-  const { onSiteInventoryList, list_page, finishedGettingInventoryItems, vehicleReports } =
-    useSelector((store) => store.user);
+  const {
+    onSiteInventoryList,
+    list_page,
+    finishedGettingInventoryItems,
+    vehicleReports,
+    swipeRightState,
+    swipeLeftState,
+    swipeData,
+  } = useSelector((store) => store.user);
   const settings = useSettingsContext();
   const [inventoryItems, setInventoryItems] = useState(onSiteInventoryList);
   const [allInventory, setAllInventory] = useState(onSiteInventoryList);
@@ -372,38 +382,10 @@ export default function TourListView() {
   }
   return (
     <Container maxWidth={settings.themeStretch ? false : 'lg'}>
-      {/* <CustomBreadcrumbs
-        heading="On Site Inventory"
-        links={[
-          {
-            name: '',
-          },
-        ]}
-        action={
-          <>
-            {settings.themeMode === 'light' && (
-              <>
-                <Tooltip title="Dark Mode" arrow>
-                  <Switch onChange={(newValue) => settings.onUpdate('themeMode', 'dark')} />
-                </Tooltip>
-              </>
-            )}
-            {settings.themeMode === 'dark' && (
-              <>
-                <Tooltip title="Light Mode" arrow>
-                  <Switch
-                    checked
-                    onChange={(newValue) => settings.onUpdate('themeMode', 'light')}
-                  />
-                </Tooltip>
-              </>
-            )}
-          </>
-        }
-        sx={{
-          mb: { xs: 3, md: 5 },
-        }}
-      /> */}
+      {swipeLeftState && <TransitionsDialogLeft />}
+
+      {swipeRightState && <TransitionsDialogRight />}
+
       {renderFilters}
       <Stack
         spacing={2.5}

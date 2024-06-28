@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types';
 import { forwardRef, useCallback, useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
 // @mui
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
@@ -26,6 +27,7 @@ import Tooltip from '@mui/material/Tooltip';
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
 import Container from '@mui/material/Container';
+
 // routes
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
@@ -39,11 +41,19 @@ import Iconify from 'src/components/iconify';
 import Label from 'src/components/label';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
 import { shortDateLabel } from 'src/components/custom-date-range-picker';
+import Markdown from 'src/components/markdown';
 import Carousel, { CarouselArrowIndex, CarouselArrows, useCarousel } from 'src/components/carousel';
 import Lightbox, { useLightBox } from 'src/components/lightbox';
-import { getDistinctValuesByKey, getFilePathSrcList, getSortedValuesByKey } from 'src/helper';
+import {
+  convertToNumber,
+  getDistinctValuesByKey,
+  getFilePathSrcList,
+  getSortedValuesByKey,
+} from 'src/helper';
 import { useSettingsContext } from 'src/components/settings';
 import SwipeRightCar from './SwipeRightCar';
+import TransitionsDialogRight from './transitions-dialog-right';
+import TransitionsDialogLeft from './transitions-dialog-left';
 
 // ----------------------------------------------------------------------
 const Transition = forwardRef((props, ref) => <Slide direction="up" ref={ref} {...props} />);
@@ -241,7 +251,27 @@ export default function TourItem({ tour, onView, onEdit, onDelete }) {
       }}
     />
   );
-
+  const renderPhotoCountColor = () => {
+    let result = 'red';
+    if (slides.length > 1 && slides.length < 10) {
+      result = 'orange';
+    }
+    if (slides.length > 10) {
+      result = 'green';
+    }
+    return result;
+  };
+  const renderDaysOldColor = () => {
+    const oldDays = convertToNumber(Days_In_Stock);
+    let result = 'red';
+    if (oldDays < 7) {
+      result = 'green';
+    }
+    if (oldDays > 7 && oldDays < 15) {
+      result = 'orange';
+    }
+    return result;
+  };
   const renderInfo = (
     <>
       <Stack
@@ -262,8 +292,13 @@ export default function TourItem({ tour, onView, onEdit, onDelete }) {
           alignItems="center"
           sx={{ typography: 'body2' }}
         >
-          <Iconify icon="mdi:camera-iris" sx={{ color: 'error.main' }} />
-          {Image_Count}
+          <Iconify
+            icon="material-symbols-light:photo-camera-outline"
+            sx={{ color: renderPhotoCountColor }}
+          />
+          <Tooltip title="Photo Count" arrow>
+            {Image_Count}
+          </Tooltip>
         </Stack>
         <Stack
           key={Days_In_Stock}
@@ -272,8 +307,10 @@ export default function TourItem({ tour, onView, onEdit, onDelete }) {
           alignItems="center"
           sx={{ typography: 'body2' }}
         >
-          <Iconify icon="mdi:calendar-clock" sx={{ color: 'info.main' }} />
-          {Days_In_Stock}
+          <Iconify icon="mdi:calendar-clock" sx={{ color: renderDaysOldColor }} />
+          <Tooltip title="Days Old" arrow>
+            {Days_In_Stock}
+          </Tooltip>
         </Stack>
         {/* {[
           {
@@ -424,13 +461,21 @@ export default function TourItem({ tour, onView, onEdit, onDelete }) {
   ];
   const TOUR_DETAILS_TABS = [
     { value: 'content', label: 'Vehicle Information' },
+    { value: 'history', label: 'History' },
     { value: 'bookers', label: 'Gallery' },
   ];
+  const { swipeLeftState, swipeRightState } = useSelector((store) => store.user);
   const [currentTab, setCurrentTab] = useState('content');
   const handleChangeTab = useCallback((event, newValue) => {
     setCurrentTab(newValue);
   }, []);
   const settings = useSettingsContext();
+  const openNewTab = () => {
+    const url = `https://creatorapp.zoho.com/dealernet/dealer-inventory/Dealer_Inventory_Records/record-edit/On_Site_Inventory/${tour?.ID}/`;
+    if (typeof url === 'string' && url.trim() !== '') {
+      window.open(url, '_blank', 'noopener,noreferrer');
+    }
+  };
   const renderTabs = (
     <Tabs
       value={currentTab}
@@ -499,9 +544,98 @@ export default function TourItem({ tour, onView, onEdit, onDelete }) {
               </Box>
             </>
           )}
+          {currentTab === 'content' && (
+            <>
+              <Stack sx={{ mx: 'auto' }}>
+                <Box
+                  gap={3}
+                  display="grid"
+                  gridTemplateColumns={{
+                    xs: 'repeat(1, 1fr)',
+                    sm: 'repeat(2, 1fr)',
+                    md: 'repeat(3, 1fr)',
+                    lg: 'repeat(4, 1fr)',
+                    xl: 'repeat(5, 1fr)',
+                  }}
+                >
+                  {[
+                    {
+                      label: 'Dealer',
+                      value: tour?.Dealer?.display_value,
+                      icon: <Iconify icon="solar:user-rounded-bold" />,
+                    },
+                    {
+                      label: 'Type',
+                      value: tour?.Type,
+                      icon: <Iconify icon="material-symbols-light:car-crash-rounded" />,
+                    },
+                    {
+                      label: 'VIN',
+                      value: tour?.VIN,
+                      icon: <Iconify icon="material-symbols-light:car-crash-rounded" />,
+                    },
+                    {
+                      label: 'Stock',
+                      value: tour?.Stock,
+                      icon: <Iconify icon="material-symbols-light:car-crash-rounded" />,
+                    },
+                    {
+                      label: 'Year',
+                      value: tour?.Year_field,
+                      icon: <Iconify icon="material-symbols-light:car-crash-rounded" />,
+                    },
+                    {
+                      label: 'Make',
+                      value: tour?.Make,
+                      icon: <Iconify icon="material-symbols-light:car-crash-rounded" />,
+                    },
+                    {
+                      label: 'Model',
+                      value: tour?.Model,
+                      icon: <Iconify icon="material-symbols-light:car-crash-rounded" />,
+                    },
+                  ].map((item) => (
+                    <Stack key={item.label} spacing={1.5} direction="row">
+                      {item.icon}
+                      <ListItemText
+                        primary={item.label}
+                        secondary={item.value}
+                        primaryTypographyProps={{
+                          typography: 'body2',
+                          color: 'text.secondary',
+                          mb: 0.5,
+                        }}
+                        secondaryTypographyProps={{
+                          typography: 'subtitle2',
+                          color: 'text.primary',
+                          component: 'span',
+                        }}
+                      />
+                    </Stack>
+                  ))}
+                </Box>
+
+                {/* <Markdown children={tour?.Vehicle_History} /> */}
+              </Stack>
+            </>
+          )}
+          {currentTab === 'history' && (
+            <>
+              <Stack sx={{ mx: 'auto' }}>
+                <Markdown children={tour?.Vehicle_History} />
+              </Stack>
+            </>
+          )}
         </Container>
       </Dialog>
-      <Card>
+      <Card
+        sx={{
+          // backgroundColor: 'rgb(255, 255, 255)',
+          boxShadow: 'rgba(0, 0, 0, 0.1) 0px 2px 4px 0px, rgba(0, 0, 0, 0.1) 0px 12px 24px -4px',
+          // padding: 2,
+          borderRadius: 2,
+        }}
+      >
         {renderImages}
         {renderTexts}
 
@@ -510,7 +644,9 @@ export default function TourItem({ tour, onView, onEdit, onDelete }) {
           {renderInfo}
           {renderInfo1}
         </Carousel>
-        {carousel.dialogSwipe}
+
+        {/* {carousel.dialogSwipe} */}
+        {}
       </Card>
       <Lightbox
         index={lightbox.selected}
@@ -526,25 +662,20 @@ export default function TourItem({ tour, onView, onEdit, onDelete }) {
       >
         <MenuItem
           onClick={() => {
+            dialog.onTrue();
             popover.onClose();
-            onView();
           }}
         >
           <Iconify icon="solar:eye-bold" />
           View
         </MenuItem>
 
-        <MenuItem
-          onClick={() => {
-            popover.onClose();
-            onEdit();
-          }}
-        >
+        <MenuItem onClick={openNewTab}>
           <Iconify icon="solar:pen-bold" />
           Edit
         </MenuItem>
 
-        <MenuItem
+        {/* <MenuItem
           onClick={() => {
             popover.onClose();
             onDelete();
@@ -553,7 +684,7 @@ export default function TourItem({ tour, onView, onEdit, onDelete }) {
         >
           <Iconify icon="solar:trash-bin-trash-bold" />
           Delete
-        </MenuItem>
+        </MenuItem> */}
       </CustomPopover>
     </>
   );

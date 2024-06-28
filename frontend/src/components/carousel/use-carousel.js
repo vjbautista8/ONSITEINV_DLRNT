@@ -20,8 +20,10 @@ export default function useCarousel(props) {
   const rtl = theme.direction === 'rtl';
   const ltr = theme.direction === 'ltr';
 
-  const handleSwipe = (nameParam) => {
+  const handleSwipe = (nameParam, carData) => {
     dispatch(handleChangeState({ name: nameParam, value: true }));
+    // swipeData
+    dispatch(handleChangeState({ name: 'swipeData', value: carData }));
   };
 
   const carouselSettings = {
@@ -30,19 +32,20 @@ export default function useCarousel(props) {
     rtl,
     beforeChange: (current, next) => {
       console.log('Swiped to index:', next);
+      // setDialogSwipe(null);
       setCurrentIndex(next);
     },
     afterChange: (current) => {
-      console.log('Swiped to index: afterChange : ', current);
+      // console.log('Swiped to index: afterChange : ', current);
       if (current === 0) {
-        handleSwipe('swipeLeftState');
-        setDialogSwipe(<TransitionsDialogLeft carData={props} />);
+        handleSwipe('swipeLeftState', props?.car_info);
+        console.log('swipeLeftState');
+        // setDialogSwipe(<TransitionsDialogLeft carData={props} />);
       }
       if (current === 2) {
-        // handleSwipe('swipeLeftState');
-        // setDialogSwipe(<TransitionsDialogLeft carData={props} />);
-        handleSwipe('swipeRightState');
-        setDialogSwipe(<TransitionsDialogRight carData={props} />);
+        handleSwipe('swipeRightState', props?.car_info);
+        console.log('swipeRightState');
+        // setDialogSwipe(<TransitionsDialogRight carData={props} />);
       }
 
       if (current !== originalIndex) {

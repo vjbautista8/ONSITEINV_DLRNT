@@ -15,36 +15,83 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
-import { handleChangeState } from 'src/features/user/userSlice';
+import { handleChangeState, updateRecord } from 'src/features/user/userSlice';
 import { LoadingScreen } from 'src/components/loading-screen';
-import { getDistinctValuesByKey } from 'src/helper';
+import {
+  getDisplayValueObjects,
+  getDistinctValuesByKey,
+  getFilteredIDs,
+  getValuesByKey,
+} from 'src/helper';
 // ----------------------------------------------------------------------
 
 const Transition = forwardRef((props, ref) => <Slide direction="up" ref={ref} {...props} />);
 
 Transition.displayName = 'Transition';
 
-export default function TransitionsDialogLeft({ carData }) {
+export default function TransitionsDialogLeft() {
   const theme = useTheme();
   const dispatch = useDispatch();
-  const { swipeLeftState, vehicleReports } = useSelector((store) => store.user);
+  const { swipeLeftState, vehicleReports, swipeData, loginUserState, addingServicesLoading } =
+    useSelector((store) => store.user);
+  const [openForm, setOpenForm] = useState(swipeLeftState);
+  // const [carDetails, setCarDetails] = useState(swipeData);
+  const [services, setServices] = useState(
+    getValuesByKey(swipeData?.Vehicle_Items, 'display_value')
+  );
+  const handleAddFilterServices = (newValue) => {
+    if (services.includes(newValue)) {
+      setServices(services.filter((service) => service !== newValue));
+    } else {
+      setServices([...services, newValue]);
+    }
+  };
   useEffect(() => {
-    console.log('carData Right', carData);
-  }, [carData]);
+    console.log('carData Left services', services);
+    // setCarDetails(carData);
+    if (swipeLeftState) {
+      setOpenForm(true);
+    } else {
+      setOpenForm(false);
+    }
+  }, [swipeLeftState, services]);
+
   const handleClose = () => {
+    setOpenForm(false);
     dispatch(handleChangeState({ name: 'swipeLeftState', value: false }));
   };
+  const handleSaveServices = () => {
+    const config = {};
+    config.appName = loginUserState?.appLinkName;
+    config.reportName = 'On_Site_Inventory';
+    config.id = swipeData?.ID;
+    config.ACTION_V = 'ADDING_REASONS';
+    const formData = {};
+    const fieldData = {};
+    const listOfReasonsIDs = getFilteredIDs(vehicleReports, services);
+    fieldData.Vehicle_Items = listOfReasonsIDs;
+    formData.data = fieldData;
+    config.formData = formData;
+    config.UPDATE_FORMAT_VEHICLE_ITEMS = getDisplayValueObjects(vehicleReports, listOfReasonsIDs);
+    console.log('CONFIG', config);
+    const updateRecordResp = async () => {
+      // You can await here
+      await dispatch(updateRecord(config));
+      // ...
+    };
+    updateRecordResp();
+  };
+
   const serviceOptions = getDistinctValuesByKey(vehicleReports, 'Vehicle_Item');
   const renderServices = (
     <Stack>
-      <Typography sx={{ mb: 3, mt: 3 }}>Reason(s) the vehicle could not be serviced</Typography>
       {serviceOptions.map((option) => (
         <FormControlLabel
           key={option}
           control={
             <Checkbox
-            // checked={filters.services.includes(option)}
-            // onClick={() => handleFilterServices(option)}
+              checked={services.includes(option)}
+              onClick={() => handleAddFilterServices(option)}
             />
           }
           label={option}
@@ -52,24 +99,22 @@ export default function TransitionsDialogLeft({ carData }) {
       ))}
     </Stack>
   );
+  // onClose = { handleClose };
   return (
     <div>
-      <Dialog
-        keepMounted
-        open={swipeLeftState}
-        TransitionComponent={Transition}
-        // onClose={() => actionFunc(false)}
-      >
+      <Dialog keepMounted open={openForm} TransitionComponent={Transition}>
         <DialogTitle sx={{ borderBottom: `dashed 1px ${theme.palette.divider}` }}>
-          {carData?.car_info?.Car_FullName}
+          {swipeData?.Car_FullName}
         </DialogTitle>
         <DialogContent>
-          {/* <Typography sx={{ mb: 3, mt: 3, textAlign: 'center' }}>
-            Reason(s) the vehicle could not be serviced
-          </Typography> */}
-          {renderServices}
+          <Typography sx={{ mb: 3, mt: 3 }}>
+            {addingServicesLoading
+              ? 'Adding Reason(s) the vehicle could not be serviced'
+              : 'Reason(s) the vehicle could not be serviced'}
+          </Typography>
+          {addingServicesLoading && <LoadingScreen />}
+          {!addingServicesLoading && renderServices}
         </DialogContent>
-        {/* onClick={handleClose} */}
         <DialogActions
           sx={{
             borderTop: `dashed 1px ${theme.palette.divider}`,
@@ -77,12 +122,16 @@ export default function TransitionsDialogLeft({ carData }) {
             justifyContent: 'center',
           }}
         >
-          <Button variant="contained" autoFocus>
-            Save
-          </Button>
-          <Button variant="outlined" onClick={handleClose}>
-            Cancel
-          </Button>
+          {!addingServicesLoading && (
+            <>
+              <Button variant="contained" autoFocus onClick={handleSaveServices}>
+                Save
+              </Button>
+              <Button variant="outlined" onClick={handleClose}>
+                Cancel
+              </Button>
+            </>
+          )}
         </DialogActions>
       </Dialog>
     </div>
@@ -90,5 +139,5 @@ export default function TransitionsDialogLeft({ carData }) {
 }
 
 TransitionsDialogLeft.propTypes = {
-  carData: PropTypes.object.isRequired,
+  // carData: PropTypes.object.isRequired,
 };

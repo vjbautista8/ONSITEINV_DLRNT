@@ -21,31 +21,31 @@ const Transition = forwardRef((props, ref) => <Slide direction="up" ref={ref} {.
 
 Transition.displayName = 'Transition';
 
-export default function TransitionsDialogRight({ carData }) {
+export default function TransitionsDialogRight() {
   const dispatch = useDispatch();
   const theme = useTheme();
-  const { swipeRightState, loginUserState, addingKeysNeededLoading } = useSelector(
+  const { swipeRightState, loginUserState, addingKeysNeededLoading, swipeData } = useSelector(
     (store) => store.user
   );
-  // useEffect(() => {
-  //   console.log('carData Right', carData);
-  //   const config = {};
-  //   // config.appName = loginUserState?.appLinkName;
-  //   config.reportName = 'On_Site_Inventory';
-  //   config.id = carData?.car_info?.ID;
-  //   const formData = {};
-  //   const fieldData = {};
-  //   fieldData.Keys = 'Need';
-  //   formData.data = fieldData;
-  //   config.formData = formData;
-  //   console.log('CONFIG', config);
-  // }, [carData]);
+
+  const [openForm, setOpenForm] = useState(swipeRightState);
+
   useEffect(() => {
-    console.log('carData Right', carData);
+    // console.log('carData Left', swipeData);
+    // setCarDetails(carData);
+    if (swipeRightState) {
+      setOpenForm(true);
+    } else {
+      setOpenForm(false);
+    }
+  }, [swipeRightState]);
+  useEffect(() => {
+    // console.log('carData Right', carData);
     const config = {};
     config.appName = loginUserState?.appLinkName;
     config.reportName = 'On_Site_Inventory';
-    config.id = carData?.car_info?.ID;
+    config.id = swipeData?.ID;
+    config.ACTION_V = 'ADDING_KEYS';
     const formData = {};
     const fieldData = {};
     fieldData.Keys = 'Need';
@@ -59,20 +59,16 @@ export default function TransitionsDialogRight({ carData }) {
       // ...
     };
     updateRecordResp();
-  }, [carData, loginUserState, dispatch]);
+  }, [loginUserState, swipeData, dispatch]);
   const handleClose = () => {
     dispatch(handleChangeState({ name: 'swipeRightState', value: false }));
   };
+  // onClose={handleClose}
   return (
     <div>
-      <Dialog
-        keepMounted
-        open={swipeRightState}
-        TransitionComponent={Transition}
-        // onClose={() => actionFunc(false)}
-      >
+      <Dialog keepMounted open={openForm} TransitionComponent={Transition}>
         <DialogTitle sx={{ borderBottom: `dashed 1px ${theme.palette.divider}` }}>
-          {carData?.car_info?.Car_FullName}
+          {swipeData?.Car_FullName}
         </DialogTitle>
         <DialogContent sx={{ pb: 3 }}>
           <Typography sx={{ mb: 3, mt: 3, textAlign: 'center' }}>
@@ -92,9 +88,6 @@ export default function TransitionsDialogRight({ carData }) {
             <Button variant="outlined" onClick={handleClose}>
               Okay
             </Button>
-            {/* <Button variant="contained" autoFocus>
-            s Agree
-          </Button> */}
           </DialogActions>
         )}
       </Dialog>
@@ -103,5 +96,5 @@ export default function TransitionsDialogRight({ carData }) {
 }
 
 TransitionsDialogRight.propTypes = {
-  carData: PropTypes.object.isRequired,
+  // carData: PropTypes.object.isRequired,
 };

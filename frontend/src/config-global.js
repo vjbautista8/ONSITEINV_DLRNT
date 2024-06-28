@@ -33,6 +33,6 @@ export const MAPBOX_API = process.env.REACT_APP_MAPBOX_API;
 
 // ROOT PATH AFTER LOGIN SUCCESSFUL
 export const PATH_AFTER_LOGIN =
-  '/appfiles/v2/f58640bc-3647-46f9-a09f-fc986c678109/1.0/4dd9cde3b7df9cec88970e5ffd21ff718a197d35d360ae0d1001d0fb08f01cbc/r11/app/index.html'; // as '/app/index.html' ///appfiles/v2/f58640bc-3647-46f9-a09f-fc986c678109/1.0/4dd9cde3b7df9cec88970e5ffd21ff718a197d35d360ae0d1001d0fb08f01cbc/r3/app/index.html
+  '/appfiles/v2/f58640bc-3647-46f9-a09f-fc986c678109/1.0/4dd9cde3b7df9cec88970e5ffd21ff718a197d35d360ae0d1001d0fb08f01cbc/r14/app/index.html'; // as '/app/index.html' ///appfiles/v2/f58640bc-3647-46f9-a09f-fc986c678109/1.0/4dd9cde3b7df9cec88970e5ffd21ff718a197d35d360ae0d1001d0fb08f01cbc/r3/app/index.html
 export const BASE_URL = window.location.pathname;
 export const APP_URL = window.location.pathname.replace('/index.html', '');

@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { handleChangeState } from 'src/features/user/userSlice';
 import { useDispatch, useSelector } from 'react-redux';
 // @mui
+import { useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Pagination, { paginationClasses } from '@mui/material/Pagination';
 // routes
@@ -23,6 +24,7 @@ export default function TourList({ tours, resultData }) {
   const { onSiteInventoryList, list_page, finishedGettingInventoryItems } = useSelector(
     (store) => store.user
   );
+  const theme = useTheme();
   const [page, setPage] = useState(1);
 
   const handleChange = (event, value_data) => {
@@ -80,7 +82,7 @@ export default function TourList({ tours, resultData }) {
         ))}
       </Box>
 
-      <div
+      {/* <div
         style={{
           position: 'fixed',
           bottom: 0,
@@ -88,20 +90,27 @@ export default function TourList({ tours, resultData }) {
           width: '100%',
           backgroundColor: '#161C24',
         }}
-      >
-        <Pagination
-          count={toWholeNumber(resultData.length / 20)}
-          page={page}
-          onChange={handleChange}
-          sx={{
-            mt: 1,
-            mb: 1,
-            [`& .${paginationClasses.ul}`]: {
-              justifyContent: 'center',
-            },
-          }}
-        />
-      </div>
+      > */}
+      <Pagination
+        count={toWholeNumber(resultData.length / 20)}
+        page={page}
+        onChange={handleChange}
+        sx={{
+          pt: 1,
+          pb: 1,
+          position: 'fixed',
+          bottom: 0,
+          right: 0,
+          width: '100%',
+          borderTop: `dashed 1px ${theme.palette.divider}`,
+          backgroundColor: 'background.default',
+          bgcolor: 'background.default',
+          [`& .${paginationClasses.ul}`]: {
+            justifyContent: 'center',
+          },
+        }}
+      />
+      {/* </div> */}
     </>
   );
 }

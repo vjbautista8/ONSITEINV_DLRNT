@@ -175,3 +175,44 @@ export const getLabelByValue = (list, searchValue) => {
 
 export const updateObjectById = (list, id, updates) =>
   list.map((item) => (item.ID === id ? { ...item, ...updates } : item));
+
+export const getValuesByKey = (listOfObjects, key) => {
+  if (!Array.isArray(listOfObjects) || listOfObjects.length === 0) {
+    return [];
+  }
+  return listOfObjects.map((obj) => obj[key]);
+};
+export const getFilteredIDs = (listOfObjects, filterValues) => {
+  if (
+    !Array.isArray(listOfObjects) ||
+    listOfObjects.length === 0 ||
+    !Array.isArray(filterValues) ||
+    filterValues.length === 0
+  ) {
+    return [];
+  }
+  return listOfObjects
+    .filter((obj) => filterValues.includes(obj.Vehicle_Item))
+    .map((obj) => obj.ID);
+};
+
+export const getDisplayValueObjects = (listOfObjects, filterIDs) => {
+  if (
+    !Array.isArray(listOfObjects) ||
+    listOfObjects.length === 0 ||
+    !Array.isArray(filterIDs) ||
+    filterIDs.length === 0
+  ) {
+    return '';
+  }
+  return listOfObjects
+    .filter((obj) => filterIDs.includes(obj.ID))
+    .map((obj) => ({
+      display_value: obj.Vehicle_Item,
+      ID: obj.ID,
+    }));
+};
+export const convertToNumber = (str) => {
+  const num = Number(str);
+  return Number.isNaN(num) ? 0 : num;
+};

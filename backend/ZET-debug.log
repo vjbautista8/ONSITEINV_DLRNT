@@ -3356,3 +3356,75 @@
 [info] [2024-06-26T22:35:18.499Z] :  ==> app\static\js\main.042cf186.js.map
 [info] [2024-06-26T22:35:18.499Z] :  ==> app\_redirects
 [info] [2024-06-26T22:35:18.499Z] : Note - File formats that can be packed are: txt, md, xml, dre, jpg, jpeg, png, gif, css, js, html, json, mp3, svg, woff, ttf, eot, webm, mp4, and woff2
+[error] [2024-06-27T11:24:38.824Z] : × Below file formats are not allowed in Sigma
+[info] [2024-06-27T11:24:38.827Z] :  ==> app\favicon\favicon.ico
+[info] [2024-06-27T11:24:38.827Z] :  ==> app\fonts\CircularStd-Bold.otf
+[info] [2024-06-27T11:24:38.828Z] :  ==> app\fonts\CircularStd-Book.otf
+[info] [2024-06-27T11:24:38.828Z] :  ==> app\fonts\CircularStd-Medium.otf
+[info] [2024-06-27T11:24:38.829Z] :  ==> app\static\css\241.14f2e665.chunk.css.map
+[info] [2024-06-27T11:24:38.829Z] :  ==> app\static\css\main.f9fb5125.css.map
+[info] [2024-06-27T11:24:38.830Z] :  ==> app\static\js\241.8bd570c9.chunk.js.map
+[info] [2024-06-27T11:24:38.830Z] :  ==> app\static\js\796.e8fdb6a4.chunk.js.map
+[info] [2024-06-27T11:24:38.831Z] :  ==> app\static\js\main.1d6a50d6.js.map
+[info] [2024-06-27T11:24:38.832Z] :  ==> app\_redirects
+[info] [2024-06-27T11:24:38.833Z] : Note - File formats that can be packed are: txt, md, xml, dre, jpg, jpeg, png, gif, css, js, html, json, mp3, svg, woff, ttf, eot, webm, mp4, and woff2
+[error] [2024-06-27T11:24:38.857Z] : × Below file formats are not allowed in Sigma
+[info] [2024-06-27T11:24:38.858Z] :  ==> app\favicon\favicon.ico
+[info] [2024-06-27T11:24:38.858Z] :  ==> app\fonts\CircularStd-Bold.otf
+[info] [2024-06-27T11:24:38.859Z] :  ==> app\fonts\CircularStd-Book.otf
+[info] [2024-06-27T11:24:38.859Z] :  ==> app\fonts\CircularStd-Medium.otf
+[info] [2024-06-27T11:24:38.860Z] :  ==> app\static\css\241.14f2e665.chunk.css.map
+[info] [2024-06-27T11:24:38.861Z] :  ==> app\static\css\main.f9fb5125.css.map
+[info] [2024-06-27T11:24:38.861Z] :  ==> app\static\js\241.8bd570c9.chunk.js.map
+[info] [2024-06-27T11:24:38.862Z] :  ==> app\static\js\796.e8fdb6a4.chunk.js.map
+[info] [2024-06-27T11:24:38.862Z] :  ==> app\static\js\main.1d6a50d6.js.map
+[info] [2024-06-27T11:24:38.863Z] :  ==> app\_redirects
+[info] [2024-06-27T11:24:38.864Z] : Note - File formats that can be packed are: txt, md, xml, dre, jpg, jpeg, png, gif, css, js, html, json, mp3, svg, woff, ttf, eot, webm, mp4, and woff2
+[error] [2024-06-27T11:35:05.065Z] : × Below file formats are not allowed in Sigma
+[info] [2024-06-27T11:35:05.068Z] :  ==> app\favicon\favicon.ico
+[info] [2024-06-27T11:35:05.068Z] :  ==> app\fonts\CircularStd-Bold.otf
+[info] [2024-06-27T11:35:05.069Z] :  ==> app\fonts\CircularStd-Book.otf
+[info] [2024-06-27T11:35:05.069Z] :  ==> app\fonts\CircularStd-Medium.otf
+[info] [2024-06-27T11:35:05.070Z] :  ==> app\static\css\241.14f2e665.chunk.css.map
+[info] [2024-06-27T11:35:05.070Z] :  ==> app\static\css\main.78832e55.css.map
+[info] [2024-06-27T11:35:05.071Z] :  ==> app\static\js\241.b86901ac.chunk.js.map
+[info] [2024-06-27T11:35:05.072Z] :  ==> app\static\js\796.e8fdb6a4.chunk.js.map
+[info] [2024-06-27T11:35:05.072Z] :  ==> app\static\js\main.62cd3f06.js.map
+[info] [2024-06-27T11:35:05.073Z] :  ==> app\_redirects
+[info] [2024-06-27T11:35:05.074Z] : Note - File formats that can be packed are: txt, md, xml, dre, jpg, jpeg, png, gif, css, js, html, json, mp3, svg, woff, ttf, eot, webm, mp4, and woff2
+[error] [2024-06-27T11:35:05.096Z] : × Below file formats are not allowed in Sigma
+[info] [2024-06-27T11:35:05.097Z] :  ==> app\favicon\favicon.ico
+[info] [2024-06-27T11:35:05.098Z] :  ==> app\fonts\CircularStd-Bold.otf
+[info] [2024-06-27T11:35:05.098Z] :  ==> app\fonts\CircularStd-Book.otf
+[info] [2024-06-27T11:35:05.098Z] :  ==> app\fonts\CircularStd-Medium.otf
+[info] [2024-06-27T11:35:05.099Z] :  ==> app\static\css\241.14f2e665.chunk.css.map
+[info] [2024-06-27T11:35:05.099Z] :  ==> app\static\css\main.78832e55.css.map
+[info] [2024-06-27T11:35:05.100Z] :  ==> app\static\js\241.b86901ac.chunk.js.map
+[info] [2024-06-27T11:35:05.100Z] :  ==> app\static\js\796.e8fdb6a4.chunk.js.map
+[info] [2024-06-27T11:35:05.100Z] :  ==> app\static\js\main.62cd3f06.js.map
+[info] [2024-06-27T11:35:05.101Z] :  ==> app\_redirects
+[info] [2024-06-27T11:35:05.101Z] : Note - File formats that can be packed are: txt, md, xml, dre, jpg, jpeg, png, gif, css, js, html, json, mp3, svg, woff, ttf, eot, webm, mp4, and woff2
+[error] [2024-06-27T11:44:14.967Z] : × Below file formats are not allowed in Sigma
+[info] [2024-06-27T11:44:14.970Z] :  ==> app\favicon\favicon.ico
+[info] [2024-06-27T11:44:14.971Z] :  ==> app\fonts\CircularStd-Bold.otf
+[info] [2024-06-27T11:44:14.971Z] :  ==> app\fonts\CircularStd-Book.otf
+[info] [2024-06-27T11:44:14.972Z] :  ==> app\fonts\CircularStd-Medium.otf
+[info] [2024-06-27T11:44:14.972Z] :  ==> app\static\css\241.14f2e665.chunk.css.map
+[info] [2024-06-27T11:44:14.973Z] :  ==> app\static\css\main.e08c1a5d.css.map
+[info] [2024-06-27T11:44:14.974Z] :  ==> app\static\js\241.ef331566.chunk.js.map
+[info] [2024-06-27T11:44:14.974Z] :  ==> app\static\js\796.e8fdb6a4.chunk.js.map
+[info] [2024-06-27T11:44:14.975Z] :  ==> app\static\js\main.d301437a.js.map
+[info] [2024-06-27T11:44:14.976Z] :  ==> app\_redirects
+[info] [2024-06-27T11:44:14.977Z] : Note - File formats that can be packed are: txt, md, xml, dre, jpg, jpeg, png, gif, css, js, html, json, mp3, svg, woff, ttf, eot, webm, mp4, and woff2
+[error] [2024-06-27T11:44:15.001Z] : × Below file formats are not allowed in Sigma
+[info] [2024-06-27T11:44:15.002Z] :  ==> app\favicon\favicon.ico
+[info] [2024-06-27T11:44:15.003Z] :  ==> app\fonts\CircularStd-Bold.otf
+[info] [2024-06-27T11:44:15.004Z] :  ==> app\fonts\CircularStd-Book.otf
+[info] [2024-06-27T11:44:15.004Z] :  ==> app\fonts\CircularStd-Medium.otf
+[info] [2024-06-27T11:44:15.005Z] :  ==> app\static\css\241.14f2e665.chunk.css.map
+[info] [2024-06-27T11:44:15.005Z] :  ==> app\static\css\main.e08c1a5d.css.map
+[info] [2024-06-27T11:44:15.006Z] :  ==> app\static\js\241.ef331566.chunk.js.map
+[info] [2024-06-27T11:44:15.006Z] :  ==> app\static\js\796.e8fdb6a4.chunk.js.map
+[info] [2024-06-27T11:44:15.007Z] :  ==> app\static\js\main.d301437a.js.map
+[info] [2024-06-27T11:44:15.007Z] :  ==> app\_redirects
+[info] [2024-06-27T11:44:15.008Z] : Note - File formats that can be packed are: txt, md, xml, dre, jpg, jpeg, png, gif, css, js, html, json, mp3, svg, woff, ttf, eot, webm, mp4, and woff2

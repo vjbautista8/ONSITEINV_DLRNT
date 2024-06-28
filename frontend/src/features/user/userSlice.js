@@ -33,6 +33,8 @@ const userState = {
   swipeRightState: false,
   swipeLeftState: false,
   addingKeysNeededLoading: true,
+  addingServicesLoading: false,
+  swipeData: {},
 };
 
 const initialState = {
@@ -202,20 +204,37 @@ const userSlice = createSlice({
       // ==============updateRecord
       .addCase(updateRecord.pending, (state, { payload, meta }) => {
         if (meta?.arg?.reportName === 'On_Site_Inventory') {
-          state.addingKeysNeededLoading = true;
+          if (meta?.arg?.ACTION_V === 'ADDING_KEYS') {
+            state.addingKeysNeededLoading = true;
+          }
+          if (meta?.arg?.ACTION_V === 'ADDING_REASONS') {
+            state.addingServicesLoading = true;
+          }
         }
         // state.finishedGettingInventoryItems = false;
       })
       .addCase(updateRecord.fulfilled, (state, { payload, meta }) => {
         if (meta?.arg?.reportName === 'On_Site_Inventory') {
-          state.addingKeysNeededLoading = false;
-          const currentInventoryList = state.onSiteInventoryList;
-          const updatedList = updateObjectById(
-            currentInventoryList,
-            meta?.arg?.id,
-            meta?.arg?.formData?.data
-          );
-          state.onSiteInventoryList = updatedList;
+          if (meta?.arg?.ACTION_V === 'ADDING_KEYS') {
+            state.addingKeysNeededLoading = false;
+            const currentInventoryList = state.onSiteInventoryList;
+            const updatedList = updateObjectById(
+              currentInventoryList,
+              meta?.arg?.id,
+              meta?.arg?.formData?.data
+            );
+            state.onSiteInventoryList = updatedList;
+          }
+          if (meta?.arg?.ACTION_V === 'ADDING_REASONS') {
+            state.addingServicesLoading = false;
+            const currentInventoryList = state.onSiteInventoryList;
+            const updatedList = updateObjectById(currentInventoryList, meta?.arg?.id, {
+              Vehicle_Items: meta?.arg?.UPDATE_FORMAT_VEHICLE_ITEMS,
+            });
+            state.onSiteInventoryList = updatedList;
+            state.swipeLeftState = false;
+            toast.success('Success! Reason(s) updated.');
+          }
         }
         console.log('updateRecord meta =>', meta);
         console.log('updateRecord fulfilled =>', payload);
@@ -226,9 +245,13 @@ const userSlice = createSlice({
         if (meta?.arg?.reportName === 'On_Site_Inventory') {
           state.addingKeysNeededLoading = false;
         }
+        if (meta?.arg?.ACTION_V === 'ADDING_REASONS') {
+          state.addingServicesLoading = false;
+        }
         console.log(`updateRecord ERROR => ${meta?.arg?.reportName}`, payload);
 
         state.isLoading = false;
+        toast.error('Ops, Something went wrong! Please try again.');
         // state.finishedGettingInventoryItems = true;
       });
     // ===============searchRecords
