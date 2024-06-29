@@ -48,7 +48,7 @@ export default function TourSearch({ query, results, onSearch, hrefItem, onFilte
 
   return (
     <Autocomplete
-      sx={{ width: { xs: 1 } }}
+      sx={{ width: 1 }}
       autoHighlight
       open={open}
       onOpen={() => setOpen(true)}
@@ -77,8 +77,7 @@ export default function TourSearch({ query, results, onSearch, hrefItem, onFilte
       renderInput={(params) => (
         <TextField
           {...params}
-          // value={query}
-          placeholder="Type the VIN, Stock #, Year, Make, or Model "
+          placeholder="Type the VIN, Stock #, Year, Make, or Model"
           onKeyUp={handleKeyUp}
           InputProps={{
             ...params.InputProps,
@@ -87,6 +86,11 @@ export default function TourSearch({ query, results, onSearch, hrefItem, onFilte
                 <Iconify icon="eva:search-fill" sx={{ ml: 1, color: 'text.disabled' }} />
               </InputAdornment>
             ),
+            sx: {
+              '& .MuiInputBase-input': {
+                padding: '0 !important',
+              },
+            },
           }}
         />
       )}

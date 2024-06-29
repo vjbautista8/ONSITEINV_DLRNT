@@ -54,13 +54,25 @@ function App() {
     has_more_on_site_inventory,
     page_on_site,
     finishedGettingInventoryItems,
+    has_more_vehicle,
+    has_more_dealership,
   } = useSelector((store) => store.user);
   const dispatch = useDispatch();
   const [hasMoreItem, setHasMoreItem] = useState(has_more_on_site_inventory);
   const [loadingPage, setLoadingPage] = useState(false);
 
   useScrollToTop();
+  // useEffect(() => {
+  //   const handleScroll = () => {
+  //     console.log('User is scrolling');
+  //   };
 
+  //   window.addEventListener('scroll', handleScroll);
+
+  //   return () => {
+  //     window.removeEventListener('scroll', handleScroll);
+  //   };
+  // }, []);
   useEffect(() => {
     if (!loginUserState) {
       dispatch(loginUser());
@@ -69,33 +81,53 @@ function App() {
 
   useEffect(() => {
     const fetchPage = async () => {
-      if (loginUserState && has_more_on_site_inventory && !loadingPage) {
+      if (loginUserState && !loadingPage) {
         setLoadingPage(true);
-
-        const config = {
-          appName: loginUserState?.appLinkName,
-          pageSize: 200,
-          reportName: 'On_Site_Inventory',
-          criteria: '',
-          page: page_on_site,
-        };
-        await dispatch(searchRecords(config));
-
-        const config_vehicle = {
-          appName: loginUserState?.appLinkName,
-          pageSize: 200,
-          reportName: 'Vehicle_Items1',
-          criteria: '',
-          page: 1,
-        };
-        await dispatch(searchRecords(config_vehicle));
+        if (has_more_on_site_inventory) {
+          const config = {
+            appName: loginUserState?.appLinkName,
+            pageSize: 200,
+            reportName: 'On_Site_Inventory',
+            criteria: '',
+            page: page_on_site,
+          };
+          await dispatch(searchRecords(config));
+        }
+        if (has_more_vehicle) {
+          const config_vehicle = {
+            appName: loginUserState?.appLinkName,
+            pageSize: 200,
+            reportName: 'Vehicle_Items1',
+            criteria: '',
+            page: 1,
+          };
+          await dispatch(searchRecords(config_vehicle));
+        }
+        if (has_more_dealership) {
+          const config_dealership = {
+            appName: loginUserState?.appLinkName,
+            pageSize: 200,
+            reportName: 'All_Dealers',
+            criteria: '(Dealership_ID != "")',
+            page: 1,
+          };
+          await dispatch(searchRecords(config_dealership));
+        }
 
         setLoadingPage(false);
       }
     };
 
     fetchPage();
-  }, [loginUserState, has_more_on_site_inventory, page_on_site, dispatch, loadingPage]);
+  }, [
+    loginUserState,
+    has_more_on_site_inventory,
+    has_more_vehicle,
+    has_more_dealership,
+    page_on_site,
+    dispatch,
+    loadingPage,
+  ]);
 
   return (
     <>

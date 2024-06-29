@@ -1,7 +1,9 @@
 import PropTypes from 'prop-types';
 import { forwardRef, useCallback, useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { getRecordByID } from 'src/features/user/userSlice';
 // @mui
+import { useTheme } from '@mui/material/styles';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogActions from '@mui/material/DialogActions';
@@ -36,6 +38,7 @@ import { fDateTime, fDateTimeSecs } from 'src/utils/format-time';
 import { fCurrency } from 'src/utils/format-number';
 // components
 import { useBoolean } from 'src/hooks/use-boolean';
+import EmptyContent from 'src/components/empty-content/empty-content';
 import Image from 'src/components/image';
 import Iconify from 'src/components/iconify';
 import Label from 'src/components/label';
@@ -49,11 +52,15 @@ import {
   getDistinctValuesByKey,
   getFilePathSrcList,
   getSortedValuesByKey,
+  stringToListObjects,
 } from 'src/helper';
 import { useSettingsContext } from 'src/components/settings';
+
 import SwipeRightCar from './SwipeRightCar';
 import TransitionsDialogRight from './transitions-dialog-right';
 import TransitionsDialogLeft from './transitions-dialog-left';
+import AnalyticsOrderTimeline from './history-time-line';
+import ViewVehicleInfo from './ViewVehicleInfo';
 
 // ----------------------------------------------------------------------
 const Transition = forwardRef((props, ref) => <Slide direction="up" ref={ref} {...props} />);
@@ -83,68 +90,207 @@ export default function TourItem({ tour, onView, onEdit, onDelete }) {
     Stock,
     Keys,
     Vehicle_Items,
+    Other_Reasons,
   } = tour;
 
   // const shortLabel = shortDateLabel(available.startDate, available.endDate);
   // const slides = gallery.map((slide) => ({
   //   src: slide.imageUrl,
   // }));
+  const dispatch = useDispatch();
+  const [carInfo, setCarInfo] = useState(tour);
+  const [loadingCar, setLoadingCar] = useState(true);
   const dialog = useBoolean();
-  const slides = getFilePathSrcList(Images1);
+  // const theme = useTheme();
+  // const slides = getFilePathSrcList(Images1);
+  const slides = tour?.Images_List_Sources;
   const lightbox = useLightBox(slides);
+  // console.log(`SLIDES IMAGES ${Stock} :`, slides);
+  const { loginUserState } = useSelector((store) => store.user);
+  // useEffect(() => {
+  //   const handleScroll = () => {
+  //     console.log('User is scrolling');
+  //   };
+
+  //   window.addEventListener('scroll', handleScroll);
+
+  //   return () => {
+  //     window.removeEventListener('scroll', handleScroll);
+  //   };
+  // }, []);
+  // useEffect(() => {
+  //   const appBar = document.querySelector(`.sticky-appbar-${tour?.ID}`);
+  //   console.log('appBar useEffect', appBar);
+  //   let lastScrollTop = 0;
+
+  //   const handleScroll = () => {
+  //     console.log('appBar handleScroll', appBar);
+  //     const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+
+  //     if (appBar) {
+  //       if (scrollTop > lastScrollTop) {
+  //         // Scrolling down
+  //         console.log('Scrolling down');
+  //         appBar.classList.add('hidden');
+  //       } else {
+  //         console.log('Scrolling down');
+  //         // Scrolling down
+  //         appBar.classList.remove('hidden');
+  //       }
+  //     }
+
+  //     lastScrollTop = scrollTop;
+  //   };
+
+  //   window.addEventListener('scroll', handleScroll);
+
+  //   return () => {
+  //     window.removeEventListener('scroll', handleScroll);
+  //   };
+  // }, [tour, carInfo]);
+  const handlingEditRecord = () => {
+    const url = `https://creatorapp.zoho.com/dealernet/dealer-inventory/Dealer_Inventory_Records/record-edit/On_Site_Inventory/${carInfo?.ID}/`;
+    if (typeof url === 'string' && url.trim() !== '') {
+      window.open(url, '_blank', 'noopener,noreferrer');
+    }
+  };
+  const handleVehicleViewing = () => {
+    dialog.onTrue();
+    console.log('LOAD CAR INFO ....', carInfo?.ID);
+    // setLoadingPage(true);
+    const config = {
+      appName: loginUserState?.appLinkName,
+      reportName: 'On_Site_Inventory',
+      id: carInfo?.ID,
+    };
+    // await dispatch(getRecordByID(config));
+    dispatch(getRecordByID(config)).then((carResponse) => {
+      console.log('LOADED CAR INFO ....', carResponse);
+      setCarInfo(carResponse?.payload?.data);
+    });
+  };
 
   const renderRating = (
     <Stack
-      direction="row"
+      direction="column"
       alignItems="center"
       sx={{
         top: 12,
         right: 12,
         zIndex: 9,
-        borderRadius: 1,
+
         position: 'absolute',
-        p: '2px 6px 2px 4px',
+        gap: 0.25,
         typography: 'subtitle2',
-        ...(Keys !== '' && {
-          bgcolor: 'warning.dark',
-        }),
+
         // bgcolor:{Keys !== '' ? 'warning.dark':''},
       }}
     >
-      {Keys !== '' && (
-        <>
-          {' '}
-          <Iconify icon="mdi:table-key" sx={{ color: 'warning.lighter', mr: 0.25 }} />{' '}
-          {`${Keys} Keys`}
-        </>
-      )}
+      <Stack
+        key={Type}
+        spacing={0.5}
+        direction="row"
+        alignItems="flex-end"
+        sx={{
+          typography: 'subtitle2',
+          bgcolor: 'rgb(33, 43, 54)',
+          borderRadius: 1,
+          p: '2px 6px 2px 4px',
+          color: 'whitesmoke',
+        }}
+      >
+        <Iconify icon="solar:tag-price-bold" sx={{ color: 'whitesmoke' }} />
+        {Type}
+      </Stack>
     </Stack>
   );
 
   const renderType = (
     <Stack
-      direction="row"
-      alignItems="center"
+      direction="column"
+      alignItems="flex-start"
       sx={{
         top: 12,
         left: 12,
         zIndex: 9,
-        borderRadius: 1,
-        bgcolor: 'grey.800',
         position: 'absolute',
-        p: '2px 6px 2px 4px',
-        color: 'common.white',
+        gap: 0.25,
         typography: 'subtitle2',
       }}
     >
-      {/* {!!priceSale && (
-        <Box component="span" sx={{ color: 'grey.500', mr: 0.25, textDecoration: 'line-through' }}>
-          {fCurrency(priceSale)}
-        </Box>
+      {Keys === 'Need' && (
+        <Stack
+          key={Keys}
+          spacing={0.5}
+          direction="row"
+          alignItems="center"
+          sx={{
+            typography: 'subtitle2',
+            bgcolor: 'warning.dark',
+            borderRadius: 1,
+            p: '2px 6px 2px 4px',
+            color: 'whitesmoke',
+          }}
+        >
+          <Iconify icon="mdi:table-key" sx={{ color: 'whitesmoke' }} />
+          Keys Needed
+        </Stack>
       )}
-      {fCurrency(price)} */}
-      <Iconify icon="solar:tag-price-bold" sx={{ color: 'primary.main', mr: 0.25 }} />
-      {Type}
+      {Keys !== 'Need' && Keys !== '' && (
+        <Stack
+          key={Keys}
+          spacing={0.5}
+          direction="row"
+          alignItems="center"
+          sx={{
+            typography: 'subtitle2',
+            bgcolor: 'warning.dark',
+            borderRadius: 1,
+            p: '2px 6px 2px 4px',
+            color: 'whitesmoke',
+          }}
+        >
+          <Iconify icon="mdi:table-key" sx={{ color: 'whitesmoke' }} />
+          {`Keys ${Keys}`}
+        </Stack>
+      )}
+      {Vehicle_Items !== '' &&
+        Vehicle_Items.map((item) => (
+          <Stack
+            key={item?.display_value}
+            spacing={0.5}
+            direction="row"
+            alignItems="center"
+            sx={{
+              typography: 'subtitle2',
+              bgcolor: 'green',
+              borderRadius: 1,
+              p: '2px 6px 2px 4px',
+              color: 'whitesmoke',
+            }}
+          >
+            <Iconify icon="ant-design:comment-outlined" sx={{ color: 'whitesmoke' }} />
+            {item?.display_value}
+          </Stack>
+        ))}
+      {Other_Reasons !== '' && (
+        <Stack
+          key={Other_Reasons}
+          spacing={0.5}
+          direction="row"
+          alignItems="center"
+          sx={{
+            typography: 'subtitle2',
+            bgcolor: 'green',
+            borderRadius: 1,
+            p: '2px 6px 2px 4px',
+            color: 'whitesmoke',
+          }}
+        >
+          <Iconify icon="ant-design:comment-outlined" sx={{ color: 'whitesmoke' }} />
+          {Other_Reasons}
+        </Stack>
+      )}
     </Stack>
   );
   const renderVehicle = (
@@ -184,7 +330,7 @@ export default function TourItem({ tour, onView, onEdit, onDelete }) {
       }}
     >
       {renderType}
-      {getSortedValuesByKey(Vehicle_Items, 'display_value') !== '' && renderVehicle}
+      {/* {getSortedValuesByKey(Vehicle_Items, 'display_value') !== '' && renderVehicle} */}
       {renderRating}
       {/* {renderType} */}
       {/* {renderType}
@@ -231,7 +377,7 @@ export default function TourItem({ tour, onView, onEdit, onDelete }) {
       }}
       primary={`Last Update: ${fDateTimeSecs(Modified_Time)}`}
       secondary={
-        <Link onClick={dialog.onTrue} color="inherit">
+        <Link onClick={handleVehicleViewing} color="inherit">
           {/* {name} */}
           <Tooltip title="Stock # | Year | Make | Model" arrow>
             {Stock} | {Year_field} | {Make} | {Model}
@@ -454,14 +600,10 @@ export default function TourItem({ tour, onView, onEdit, onDelete }) {
   // const {
   //   dialogSwipe, // Get the dialog component
   // } = useCarousel(props);
-  const data = [
-    { title: 'test', coverUrl: '', id: 1 },
-    { title: 'test', coverUrl: '', id: 2 },
-    { title: 'test', coverUrl: '', id: 3 },
-  ];
+
   const TOUR_DETAILS_TABS = [
     { value: 'content', label: 'Vehicle Information' },
-    { value: 'history', label: 'History' },
+    { value: 'history', label: 'Vehicle History' },
     { value: 'bookers', label: 'Gallery' },
   ];
   const { swipeLeftState, swipeRightState } = useSelector((store) => store.user);
@@ -469,19 +611,42 @@ export default function TourItem({ tour, onView, onEdit, onDelete }) {
   const handleChangeTab = useCallback((event, newValue) => {
     setCurrentTab(newValue);
   }, []);
+  const historyTimeline = stringToListObjects(carInfo?.Vehicle_History);
+  console.log('historyTimeline', historyTimeline);
   const settings = useSettingsContext();
-  const openNewTab = () => {
-    const url = `https://creatorapp.zoho.com/dealernet/dealer-inventory/Dealer_Inventory_Records/record-edit/On_Site_Inventory/${tour?.ID}/`;
-    if (typeof url === 'string' && url.trim() !== '') {
-      window.open(url, '_blank', 'noopener,noreferrer');
+  const renderTabSize = (value) => {
+    if (value === 'bookers') {
+      return <Label variant="filled">{slides.length}</Label>;
     }
+    if (value === 'history') {
+      return <Label variant="filled">{historyTimeline.length}</Label>;
+    }
+    return '';
+  };
+  const renderTabBgColor = () => {
+    if (settings.themeMode === 'dark') {
+      return 'rgb(33, 43, 54)';
+    }
+    return 'rgb(255, 255, 255)';
   };
   const renderTabs = (
     <Tabs
       value={currentTab}
       onChange={handleChangeTab}
       sx={{
-        mb: { xs: 3, md: 5 },
+        mb: { xs: 2, md: 2 },
+        // position: 'sticky',
+        // top: 0,
+
+        pr: 3,
+        pl: 3,
+        // zIndex: 1000, // Ensure it's above other content
+        bgcolor: renderTabBgColor(),
+        borderBottom: (theme) => `dashed 1px ${theme.palette.divider}`,
+        borderTop: (theme) => `dashed 1px ${theme.palette.divider}`,
+        // bgcolor: (theme) => theme.palette.background.default, // Set background color to avoid overlap issues
+        // backgroundColor: 'background.default', // Ensure the background matches your theme
+        // color: 'default',
       }}
     >
       {TOUR_DETAILS_TABS.map((tab) => (
@@ -490,20 +655,31 @@ export default function TourItem({ tour, onView, onEdit, onDelete }) {
           iconPosition="end"
           value={tab.value}
           label={tab.label}
-          icon={tab.value === 'bookers' ? <Label variant="filled">{slides.length}</Label> : ''}
+          icon={renderTabSize(tab.value)}
         />
       ))}
     </Tabs>
   );
   return (
     <>
-      <Dialog
+      <ViewVehicleInfo
+        dialogvalue={dialog.value}
+        dialogonFalse={dialog.onFalse}
+        Transition={Transition}
+        tour={tour}
+        renderTabs={renderTabs}
+        currentTab={currentTab}
+        slides={slides}
+        settings={settings}
+        historyTimeline={historyTimeline}
+      />
+      {/* <Dialog
         fullScreen
         open={dialog.value}
         onClose={dialog.onFalse}
         TransitionComponent={Transition}
       >
-        <AppBar position="relative" color="default">
+        <AppBar position="relative" color="default" className={`sticky-appbar-${tour?.ID}`}>
           <Toolbar>
             <IconButton color="inherit" edge="start" onClick={dialog.onFalse}>
               <Iconify icon="mingcute:close-line" />
@@ -512,36 +688,41 @@ export default function TourItem({ tour, onView, onEdit, onDelete }) {
             <Typography variant="h6" sx={{ flex: 1, ml: 2 }}>
               {Stock} | {Year_field} | {Make} | {Model}
             </Typography>
-
-            {/* <Button autoFocus color="inherit" variant="contained" onClick={dialog.onFalse}>
-              Edit
-            </Button> */}
           </Toolbar>
         </AppBar>
         <Container maxWidth={settings.themeStretch ? false : 'lg'}>
           {renderTabs}
           {currentTab === 'bookers' && (
             <>
-              <Box
-                gap={3}
-                display="grid"
-                gridTemplateColumns={{
-                  xs: 'repeat(1, 1fr)',
-                  sm: 'repeat(2, 1fr)',
-                  md: 'repeat(3, 1fr)',
-                  lg: 'repeat(4, 1fr)',
-                  xl: 'repeat(5, 1fr)',
-                }}
-              >
-                {slides.map((booker, index) => (
-                  <Image
-                    alt={slides[index]?.src}
-                    src={slides[index]?.src}
-                    onClick={() => lightbox.onOpen(slides[index]?.src)}
-                    sx={{ borderRadius: 1 }}
-                  />
-                ))}
-              </Box>
+              {slides.length > 0 && (
+                <>
+                  <Box
+                    gap={3}
+                    display="grid"
+                    gridTemplateColumns={{
+                      xs: 'repeat(1, 1fr)',
+                      sm: 'repeat(2, 1fr)',
+                      md: 'repeat(3, 1fr)',
+                      lg: 'repeat(4, 1fr)',
+                      xl: 'repeat(5, 1fr)',
+                    }}
+                  >
+                    {slides.map((booker, index) => (
+                      <Image
+                        alt={slides[index]?.src}
+                        src={slides[index]?.src}
+                        onClick={() => lightbox.onOpen(slides[index]?.src)}
+                        sx={{ borderRadius: 1 }}
+                      />
+                    ))}
+                  </Box>
+                </>
+              )}
+              {slides.length === 0 && (
+                <>
+                  <EmptyContent title="No Photo" filled sx={{ py: 10 }} />
+                </>
+              )}
             </>
           )}
           {currentTab === 'content' && (
@@ -614,20 +795,27 @@ export default function TourItem({ tour, onView, onEdit, onDelete }) {
                     </Stack>
                   ))}
                 </Box>
-
-                {/* <Markdown children={tour?.Vehicle_History} /> */}
               </Stack>
             </>
           )}
           {currentTab === 'history' && (
             <>
               <Stack sx={{ mx: 'auto' }}>
-                <Markdown children={tour?.Vehicle_History} />
+                {historyTimeline.length > 0 && (
+                  <>
+                    <AnalyticsOrderTimeline title="History Timeline" list={historyTimeline} />
+                  </>
+                )}
+                {historyTimeline.length === 0 && (
+                  <>
+                    <EmptyContent title="No History" filled sx={{ py: 10 }} />
+                  </>
+                )}
               </Stack>
             </>
           )}
         </Container>
-      </Dialog>
+      </Dialog> */}
       <Card
         sx={{
           // backgroundColor: 'rgb(255, 255, 255)',
@@ -670,7 +858,7 @@ export default function TourItem({ tour, onView, onEdit, onDelete }) {
           View
         </MenuItem>
 
-        <MenuItem onClick={openNewTab}>
+        <MenuItem onClick={handlingEditRecord}>
           <Iconify icon="solar:pen-bold" />
           Edit
         </MenuItem>

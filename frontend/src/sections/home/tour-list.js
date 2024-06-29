@@ -59,7 +59,7 @@ export default function TourList({ tours, resultData }) {
   return (
     <>
       <Box
-        gap={3}
+        gap={1.5}
         display="grid"
         gridTemplateColumns={{
           xs: 'repeat(1, 1fr)',

@@ -1,10 +1,11 @@
 import PropTypes from 'prop-types';
 import { useCallback, useState } from 'react';
+import { m } from 'framer-motion';
 // @mui
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import Chip from '@mui/material/Chip';
 import Stack from '@mui/material/Stack';
-import Badge from '@mui/material/Badge';
+import Badge, { badgeClasses } from '@mui/material/Badge';
 import Drawer from '@mui/material/Drawer';
 import Button from '@mui/material/Button';
 import Avatar from '@mui/material/Avatar';
@@ -16,7 +17,11 @@ import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import Autocomplete from '@mui/material/Autocomplete';
 import FormControlLabel from '@mui/material/FormControlLabel';
+import Box from '@mui/material/Box';
+// hooks
+import { useResponsive } from 'src/hooks/use-responsive';
 // components
+import { varHover } from 'src/components/animate';
 import { getFilePathSrcList } from 'src/helper';
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
@@ -44,11 +49,13 @@ export default function TourFilters({
   //
   dateError,
   dataFilteredParam,
+  onCloseMobile,
 }) {
   const [search, setSearch] = useState({
     query: '',
     results: [],
   });
+  const lgUp = useResponsive('up', 'lg');
   const handleSearch = useCallback(
     (inputValue) => {
       setSearch((prevState) => ({
@@ -177,44 +184,51 @@ export default function TourFilters({
 
   const renderDestination = (
     <Stack>
-      <Typography variant="subtitle2" sx={{ mb: 1.5 }}>
-        Make
-      </Typography>
+      {/* <Typography variant="subtitle2" sx={{ mb: 1.5 }}>
+        Dealership
+      </Typography> */}
 
       <Autocomplete
         multiple
         disableCloseOnSelect
-        options={destinationOptions.map((option) => option.Car_FullName)}
+        options={destinationOptions.map((option) => option.Dealer_Name)}
         getOptionLabel={(option) => option}
         value={filters.destination}
         onChange={(event, newValue) => handleFilterDestination(newValue)}
-        renderInput={(params) => <TextField placeholder="Select Make" {...params} />}
+        renderInput={(params) => (
+          <TextField
+            placeholder="Select Dealership"
+            {...params}
+            label="Dealership"
+            variant="outlined"
+          />
+        )}
         renderOption={(props, option) => {
-          const { Car_FullName, Images1 } = destinationOptions.filter(
-            (country) => country.Car_FullName === option
+          const { Dealer_Name, Images1 } = destinationOptions.filter(
+            (country) => country.Dealer_Name === option
           )[0];
 
-          if (!Car_FullName) {
+          if (!Dealer_Name) {
             return null;
           }
 
           return (
-            <li {...props} key={Car_FullName}>
+            <li {...props} key={Dealer_Name}>
               {/* <Iconify key={Car_FullName} icon="tabler:brand-toyota" width={28} sx={{ mr: 1 }} /> */}
               <Avatar
-                key={Car_FullName}
-                alt={Car_FullName}
+                key={Dealer_Name}
+                alt={Dealer_Name}
                 src={getFilePathSrcList(Images1)[0]?.src}
                 variant="rounded"
                 sx={{
-                  width: 48,
-                  height: 48,
+                  width: 25,
+                  height: 25,
                   flexShrink: 0,
                   mr: 1.5,
                   borderRadius: 1,
                 }}
               />
-              {Car_FullName}
+              {Dealer_Name}
             </li>
           );
         }}
@@ -343,21 +357,76 @@ export default function TourFilters({
       filters={filters}
     />
   );
-
+  // const handleOpenFilter = () => {
+  //   onOpen();
+  //   // onCloseMobile();
+  // };
   return (
     <>
-      <Button
-        disableRipple
-        color="inherit"
-        endIcon={
-          <Badge color="error" variant="dot" invisible={!canReset}>
-            <Iconify icon="ic:round-filter-list" />
-          </Badge>
-        }
-        onClick={onOpen}
-      >
-        Filters
-      </Button>
+      {!lgUp && (
+        <>
+          <Tooltip title="Filter" arrow>
+            <Badge
+              color="error"
+              variant="dot"
+              invisible={!canReset}
+              sx={{
+                [`& .${badgeClasses.badge}`]: {
+                  top: 8,
+                  right: 8,
+                },
+              }}
+            >
+              <Box
+                component={m.div}
+                animate={
+                  {
+                    // rotate: [0, settings.open ? 0 : 360],
+                    // rotate: [0, 360],
+                  }
+                }
+                transition={{
+                  duration: 12,
+                  ease: 'linear',
+                  repeat: Infinity,
+                }}
+              >
+                <IconButton
+                  component={m.button}
+                  whileTap="tap"
+                  whileHover="hover"
+                  variants={varHover(1.05)}
+                  aria-label="settings"
+                  // onClick={handleOpenFilterMobile}
+                  onClick={onOpen}
+                  sx={{
+                    width: 40,
+                    height: 40,
+                  }}
+                >
+                  <Iconify icon="mi:filter" width={24} />
+                </IconButton>
+              </Box>
+            </Badge>
+          </Tooltip>
+        </>
+      )}
+      {lgUp && (
+        <>
+          <Button
+            disableRipple
+            color="inherit"
+            endIcon={
+              <Badge color="error" variant="dot" invisible={!canReset}>
+                <Iconify icon="mi:filter" />
+              </Badge>
+            }
+            onClick={onOpen}
+          >
+            Filters
+          </Button>
+        </>
+      )}
 
       <Drawer
         anchor="right"
@@ -367,7 +436,7 @@ export default function TourFilters({
           backdrop: { invisible: true },
         }}
         PaperProps={{
-          sx: { width: 280 },
+          sx: { width: 350 },
         }}
       >
         {renderHead}
@@ -381,12 +450,11 @@ export default function TourFilters({
             {renderDestination}
 
             {renderTourGuide} */}
-
+            {renderDestination}
             {renderStatus}
             {renderKeys}
             {renderServices}
             {renderSearch}
-            {/* {renderDestination} */}
           </Stack>
         </Scrollbar>
       </Drawer>
@@ -400,6 +468,7 @@ TourFilters.propTypes = {
   destinationOptions: PropTypes.array,
   filters: PropTypes.object,
   onClose: PropTypes.func,
+  onCloseMobile: PropTypes.func,
   onFilters: PropTypes.func,
   onOpen: PropTypes.func,
   onResetFilters: PropTypes.func,

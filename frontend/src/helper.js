@@ -46,6 +46,11 @@ export const addConcatenatedKey = (list, keyList, newKey) =>
       .join(' | '),
   }));
 
+export const addKeyValueFromExistingKey = (listOfObjects, newKey, existingKey) =>
+  listOfObjects.map((obj) => ({
+    ...obj,
+    [newKey]: getFilePathSrcList(obj[existingKey]), // Default to empty string if the existingKey is not present or its value is falsy
+  }));
 export const paginate = (list, page) => {
   const itemsPerPage = 20;
   const startIndex = (page - 1) * itemsPerPage;
@@ -215,4 +220,47 @@ export const getDisplayValueObjects = (listOfObjects, filterIDs) => {
 export const convertToNumber = (str) => {
   const num = Number(str);
   return Number.isNaN(num) ? 0 : num;
+};
+
+export const formatCurrentDateTime = () => {
+  const padZero = (number) => (number < 10 ? `0${number}` : number);
+
+  const now = new Date();
+  const month = padZero(now.getMonth() + 1);
+  const day = padZero(now.getDate());
+  const year = now.getFullYear();
+  const hours = padZero(now.getHours());
+  const minutes = padZero(now.getMinutes());
+  const seconds = padZero(now.getSeconds());
+
+  return `${month}/${day}/${year} ${hours}:${minutes}:${seconds}`;
+};
+
+export const stringToListObjects = (str) => {
+  if (!str || typeof str !== 'string') return [];
+
+  const extractUserType = (text) => {
+    const match = text.match(/by\s+([\w\s]+)/);
+    return match ? match[1].trim() : 'Unknown';
+  };
+
+  const extractDateTime = (text) => {
+    const match = text.match(/\b\d{2}\/\d{2}\/\d{4}\s\d{2}:\d{2}:\d{2}\b/);
+    return match ? match[0] : 'Unknown';
+  };
+
+  const extractTitle = (text) =>
+    text.replace(/\sat\s+\d{2}\/\d{2}\/\d{4}\s\d{2}:\d{2}:\d{2}\s+by\s+[\w\s]+/, '').trim();
+
+  return str
+    .replace(/<\/?[^>]+(>|$)/g, '')
+    .split('-')
+    .map((item) => item.trim())
+    .filter((item) => item !== '' && item !== 'null')
+    .map((item, index) => ({
+      id: index,
+      title: extractTitle(item),
+      type: extractUserType(item),
+      time: extractDateTime(item),
+    }));
 };

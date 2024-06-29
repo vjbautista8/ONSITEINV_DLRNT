@@ -24,7 +24,7 @@ export default function TourSort({ sort, onSort, sortOptions, fieldName }) {
             icon={popover.open ? 'eva:arrow-ios-upward-fill' : 'eva:arrow-ios-downward-fill'}
           />
         }
-        sx={{ fontWeight: 'fontWeightSemiBold' }}
+        sx={{ fontWeight: 'fontWeightSemiBold', justifyContent: 'flex-end' }}
       >
         {fieldName}:
         <Box

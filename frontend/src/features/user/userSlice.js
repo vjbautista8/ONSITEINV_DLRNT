@@ -5,6 +5,8 @@ import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import {
   addConcatenatedKey,
+  addKeyValueFromExistingKey,
+  formatCurrentDateTime,
   getFirstNElements,
   sortByDateTimeKey,
   sortByKey,
@@ -26,6 +28,8 @@ const userState = {
   finishedGettingInventoryItems: false,
   list_page: 1,
   has_more_on_site_inventory: true,
+  has_more_vehicle: true,
+  has_more_dealership: true,
   page_on_site: 1,
   statusOptionsState: [],
   servicesOptionsState: [],
@@ -35,6 +39,8 @@ const userState = {
   addingKeysNeededLoading: true,
   addingServicesLoading: false,
   swipeData: {},
+  allDealerships: [],
+  viewingData: {},
 };
 
 const initialState = {
@@ -150,6 +156,21 @@ const userSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      // ==============getRecordByID
+      .addCase(getRecordByID.pending, (state) => {})
+      .addCase(getRecordByID.fulfilled, (state, { payload, meta }) => {
+        const result = payload;
+        console.log('getRecordByID fulfilled =>', result);
+        if (meta?.arg?.reportName === 'On_Site_Inventory' && payload?.data) {
+          state.viewingData = result?.data;
+        }
+        // state.loginUserState = result;
+      })
+      .addCase(getRecordByID.rejected, (state, { payload }) => {
+        console.log('getRecordByID ERROR =>', payload);
+        state.isLoading = false;
+      })
+      // ===============getRecordByID
       // ==============loginUser
       .addCase(loginUser.pending, (state) => {})
       .addCase(loginUser.fulfilled, (state, { payload }) => {
@@ -173,8 +194,13 @@ const userSlice = createSlice({
           const newKey = 'Car_FullName';
           const currentList = state.onSiteInventoryList;
           const result = addConcatenatedKey(payload?.data, keyList, newKey);
+          const addImagesSrcListResult = addKeyValueFromExistingKey(
+            result,
+            'Images_List_Sources',
+            'Images1'
+          );
           // getFirstNElements(200, result);
-          const result_unsorted = [...currentList, ...result];
+          const result_unsorted = [...currentList, ...addImagesSrcListResult];
           const result_sorted = sortByDateTimeKey(result_unsorted, 'Modified_Time', 'desc');
           state.onSiteInventoryList = result_sorted;
           const prevPage = state.page_on_site;
@@ -184,8 +210,15 @@ const userSlice = createSlice({
 
         if (meta?.arg?.reportName === 'Vehicle_Items1' && payload?.data) {
           const result = payload;
-          console.log('searchRecords fulfilled  On_Site_Inventory =>', result);
+          console.log('searchRecords fulfilled  Vehicle_Items1 =>', result);
           state.vehicleReports = payload?.data;
+          state.has_more_vehicle = false;
+        }
+        if (meta?.arg?.reportName === 'All_Dealers' && payload?.data) {
+          const result = payload;
+          console.log('searchRecords fulfilled  All_Dealers =>', result);
+          state.allDealerships = payload?.data;
+          state.has_more_dealership = false;
         }
         // state.finishedGettingInventoryItems = true;
       })
@@ -218,11 +251,10 @@ const userSlice = createSlice({
           if (meta?.arg?.ACTION_V === 'ADDING_KEYS') {
             state.addingKeysNeededLoading = false;
             const currentInventoryList = state.onSiteInventoryList;
-            const updatedList = updateObjectById(
-              currentInventoryList,
-              meta?.arg?.id,
-              meta?.arg?.formData?.data
-            );
+            const formData = meta?.arg?.formData?.data;
+            formData.Modified_Time = formatCurrentDateTime();
+            const updatedList = updateObjectById(currentInventoryList, meta?.arg?.id, formData);
+
             state.onSiteInventoryList = updatedList;
           }
           if (meta?.arg?.ACTION_V === 'ADDING_REASONS') {
@@ -230,7 +262,11 @@ const userSlice = createSlice({
             const currentInventoryList = state.onSiteInventoryList;
             const updatedList = updateObjectById(currentInventoryList, meta?.arg?.id, {
               Vehicle_Items: meta?.arg?.UPDATE_FORMAT_VEHICLE_ITEMS,
+              Keys: '',
+              Other_Reasons: meta?.arg?.formData?.data?.Other_Reasons,
+              Modified_Time: formatCurrentDateTime(),
             });
+
             state.onSiteInventoryList = updatedList;
             state.swipeLeftState = false;
             toast.success('Success! Reason(s) updated.');

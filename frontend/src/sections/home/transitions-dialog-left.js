@@ -10,6 +10,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import Typography from '@mui/material/Typography';
+import TextField from '@mui/material/TextField';
 import { useTheme } from '@mui/material/styles';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
@@ -35,6 +36,7 @@ export default function TransitionsDialogLeft() {
   const { swipeLeftState, vehicleReports, swipeData, loginUserState, addingServicesLoading } =
     useSelector((store) => store.user);
   const [openForm, setOpenForm] = useState(swipeLeftState);
+  const [otherReason, setOtherReason] = useState(swipeData?.Other_Reasons);
   // const [carDetails, setCarDetails] = useState(swipeData);
   const [services, setServices] = useState(
     getValuesByKey(swipeData?.Vehicle_Items, 'display_value')
@@ -70,6 +72,7 @@ export default function TransitionsDialogLeft() {
     const fieldData = {};
     const listOfReasonsIDs = getFilteredIDs(vehicleReports, services);
     fieldData.Vehicle_Items = listOfReasonsIDs;
+    fieldData.Other_Reasons = otherReason;
     formData.data = fieldData;
     config.formData = formData;
     config.UPDATE_FORMAT_VEHICLE_ITEMS = getDisplayValueObjects(vehicleReports, listOfReasonsIDs);
@@ -97,6 +100,14 @@ export default function TransitionsDialogLeft() {
           label={option}
         />
       ))}
+      <TextField
+        variant="outlined"
+        fullWidth
+        label="Other Reasons"
+        sx={{ mt: 1 }}
+        value={otherReason}
+        onChange={(input) => setOtherReason(input.target.value)}
+      />
     </Stack>
   );
   // onClose = { handleClose };

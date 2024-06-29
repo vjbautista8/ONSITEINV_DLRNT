@@ -75,24 +75,24 @@ export default function TourFiltersResult({
             ))}
           </Block>
         )}
+        {!!filters.destination.length && (
+          <Block label="Dealership:">
+            {filters.destination.map((item) => (
+              <Chip
+                key={item}
+                label={item}
+                size="small"
+                onDelete={() => handleRemoveDestination(item)}
+              />
+            ))}
+          </Block>
+        )}
         {filters.startDate && filters.endDate && (
           <Block label="Available:">
             <Chip size="small" label={shortLabel} onDelete={handleRemoveAvailable} />
           </Block>
         )}
 
-        {!!filters.services.length && (
-          <Block label="Vehicle Items:">
-            {filters.services.map((item) => (
-              <Chip
-                key={item}
-                label={item}
-                size="small"
-                onDelete={() => handleRemoveServices(item)}
-              />
-            ))}
-          </Block>
-        )}
         {!!filters.status.length && (
           <Block label="Type:">
             {filters.status.map((item) => (
@@ -112,6 +112,18 @@ export default function TourFiltersResult({
             ))}
           </Block>
         )}
+        {!!filters.services.length && (
+          <Block label="Vehicle Items:">
+            {filters.services.map((item) => (
+              <Chip
+                key={item}
+                label={item}
+                size="small"
+                onDelete={() => handleRemoveServices(item)}
+              />
+            ))}
+          </Block>
+        )}
 
         {!!filters.tourGuides.length && (
           <Block label="Tour guide:">
@@ -122,19 +134,6 @@ export default function TourFiltersResult({
                 avatar={<Avatar alt={item.name} src={item.avatarUrl} />}
                 label={item.name}
                 onDelete={() => handleRemoveTourGuide(item)}
-              />
-            ))}
-          </Block>
-        )}
-
-        {!!filters.destination.length && (
-          <Block label="Make:">
-            {filters.destination.map((item) => (
-              <Chip
-                key={item}
-                label={item}
-                size="small"
-                onDelete={() => handleRemoveDestination(item)}
               />
             ))}
           </Block>

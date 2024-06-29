@@ -1,18 +1,24 @@
 import orderBy from 'lodash/orderBy';
 import { useState, useCallback, useEffect } from 'react';
 import { useSelector } from 'react-redux';
+import { m } from 'framer-motion';
 // @mui
 import { useTheme } from '@mui/material/styles';
+import Badge, { badgeClasses } from '@mui/material/Badge';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
 import Tooltip from '@mui/material/Tooltip';
+import IconButton from '@mui/material/IconButton';
+import MenuItem from '@mui/material/MenuItem';
 // routes
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
+import { useResponsive } from 'src/hooks/use-responsive';
+
 // utils
 import { fTimestamp } from 'src/utils/format-time';
 // _mock
@@ -20,11 +26,13 @@ import { _tours, _tourGuides, TOUR_SERVICE_OPTIONS, TOUR_SORT_OPTIONS } from 'sr
 // assets
 import { countries } from 'src/assets/data';
 // components
+import CustomPopover, { usePopover } from 'src/components/custom-popover';
 import Switch from '@mui/material/Switch';
 import Iconify from 'src/components/iconify';
 import EmptyContent from 'src/components/empty-content';
 import { useSettingsContext } from 'src/components/settings';
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
+import { varHover } from 'src/components/animate';
 //
 import { useScrollToTop } from 'src/hooks/use-scroll-to-top';
 import { LoadingScreen } from 'src/components/loading-screen';
@@ -85,8 +93,11 @@ export default function TourListView() {
     swipeRightState,
     swipeLeftState,
     swipeData,
+    allDealerships,
   } = useSelector((store) => store.user);
   const settings = useSettingsContext();
+  const popover = usePopover();
+  const lgUp = useResponsive('up', 'lg');
   const [inventoryItems, setInventoryItems] = useState(onSiteInventoryList);
   const [allInventory, setAllInventory] = useState(onSiteInventoryList);
   const openFilters = useBoolean();
@@ -98,6 +109,7 @@ export default function TourListView() {
     query: '',
     results: [],
   });
+  const [openFilterSmallSize, setOpenFilterSmallSize] = useState(false);
 
   const [filters, setFilters] = useState(defaultFilters);
 
@@ -135,7 +147,9 @@ export default function TourListView() {
     !!filters.ID.length;
 
   const notFound = !dataFiltered?.paginateData.length && canReset;
-
+  const handleOpenFilterMobile = () => {
+    setOpenFilterSmallSize(!openFilterSmallSize);
+  };
   const handleFilters = useCallback((name, value) => {
     setFilters((prevState) => ({
       ...prevState,
@@ -177,131 +191,465 @@ export default function TourListView() {
   }, []);
 
   const renderFilters = (
-    // <Stack
-    //   spacing={3}
-    //   justifyContent="space-between"
-    //   alignItems={{ xs: 'flex-end', sm: 'center' }}
-    //   direction={{
-    //     xs: 'column',
-    //     sm: 'column',
-    //     md: 'row',
-    //     lg: 'row',
-    //     xl: 'row',
-    //   }}
-    // >
-    //   <TourSearch
-    //     query={search.query}
-    //     results={search.results}
-    //     onSearch={handleSearch}
-    //     onFilters={handleFilters}
-    //     filters={filters}
-    //     // hrefItem={(id) => paths.dashboard.tour.details(id)} TODO
-    //     hrefItem={(ID) => ID}
-    //   />
-
-    //   <Stack
-    //     direction={{
-    //       xs: 'column',
-    //       sm: 'column',
-    //       md: 'row',
-    //       lg: 'row',
-    //       xl: 'row',
-    //     }}
-    //     display={{
-    //       xs: 'inline-table',
-    //       sm: 'inline-table',
-    //       md: 'flex',
-    //       lg: 'flex',
-    //       xl: 'flex',
-    //     }}
-    //     spacing={1}
-    //     flexShrink={0}
-    //   >
-    //     <TourSort
-    //       sort={sortBy}
-    //       onSort={handleSortBy}
-    //       sortOptions={INVENTORY_SORT_OPTIONS}
-    //       fieldName="Sort By"
-    //     />
-    //     <TourSort
-    //       sort={sortOrder}
-    //       onSort={handleSortOrder}
-    //       sortOptions={INVENTORY_SORT_ORDER_OPTIONS}
-    //       fieldName="Sort Order"
-    //     />
-    //     <TourFilters
-    //       open={openFilters.value}
-    //       onOpen={openFilters.onTrue}
-    //       onClose={openFilters.onFalse}
-    //       filters={filters}
-    //       onFilters={handleFilters}
-    //       canReset={canReset}
-    //       onResetFilters={handleResetFilters}
-    //       serviceOptions={getDistinctValuesByKey(vehicleReports, 'Vehicle_Item')}
-    //       keysOptions={['N/A', 'Need', 'Received', 'Returned']}
-    //       vehiclesOptions={getDistinctValuesByKey(vehicleReports, 'Vehicle_Item')}
-    //       statusOptions={getDistinctValuesByKey(onSiteInventoryList, 'Type')}
-    //       tourGuideOptions={_tourGuides}
-    //       destinationOptions={dataFiltered?.allData}
-    //       dateError={dateError}
-    //       dataFilteredParam={dataFiltered}
-    //     />
-    //   </Stack>
-    // </Stack>
     <Box
       sx={{
         position: 'fixed',
         top: 0,
         left: 0,
         right: 0,
+        // pt: 1,
         zIndex: 1100, // Adjust based on your zIndex configuration
         // bgcolor: 'background.default',
         backgroundColor: 'background.default', // Ensure the background matches your theme
-        // boxShadow: 1, // Add shadow for visual separation
-        padding: 2, // Add padding for spacing
+        boxShadow: 1, // Add shadow for visual separation
+        padding: 0.9, // Add padding for spacing
         borderBottom: `dashed 1px ${theme.palette.divider}`,
       }}
     >
-      <Stack
-        spacing={3}
-        justifyContent="space-between"
-        alignItems={{ xs: 'flex-end', sm: 'center' }}
-        direction={{
-          xs: 'column',
-          sm: 'column',
-          md: 'row',
-          lg: 'row',
-          xl: 'row',
-        }}
-      >
-        <TourSearch
-          query={search.query}
-          results={search.results}
-          onSearch={handleSearch}
-          onFilters={handleFilters}
-          filters={filters}
-          // hrefItem={(id) => paths.dashboard.tour.details(id)} TODO
-          hrefItem={(ID) => ID}
-        />
+      {!lgUp && (
+        <>
+          <Stack
+            direction={{
+              xs: 'row',
+              sm: 'row',
+              md: 'row',
+              lg: 'row',
+              xl: 'row',
+            }}
+            display={{
+              xs: 'flex',
+              sm: 'flex',
+              md: 'flex',
+              lg: 'flex',
+              xl: 'flex',
+            }}
+            sx={{ justifyContent: 'space-between' }}
+            spacing={1}
+            flexShrink={0}
+          >
+            <TourSearch
+              query={search.query}
+              results={search.results}
+              onSearch={handleSearch}
+              onFilters={handleFilters}
+              filters={filters}
+              hrefItem={(ID) => ID}
+            />
+            <Stack sx={{ display: 'flex', flexDirection: 'row' }}>
+              <Stack>
+                <Tooltip title="Sort" arrow>
+                  <Badge
+                    color="error"
+                    variant="dot"
+                    invisible={!popover.open}
+                    sx={{
+                      [`& .${badgeClasses.badge}`]: {
+                        top: 8,
+                        right: 8,
+                      },
+                    }}
+                  >
+                    <Box
+                      component={m.div}
+                      animate={
+                        {
+                          // rotate: [0, settings.open ? 0 : 360],
+                          // rotate: [0, 360],
+                        }
+                      }
+                      transition={{
+                        duration: 12,
+                        ease: 'linear',
+                        repeat: Infinity,
+                      }}
+                    >
+                      <IconButton
+                        component={m.button}
+                        whileTap="tap"
+                        whileHover="hover"
+                        variants={varHover(1.05)}
+                        aria-label="settings"
+                        // onClick={handleOpenFilterMobile}
+                        onClick={popover.onOpen}
+                        sx={{
+                          width: 40,
+                          height: 40,
+                        }}
+                      >
+                        {/* // mi:filter // solar:settings-bold-duotone */}
+                        <Iconify icon="iconoir:sort" width={24} />
+                      </IconButton>
+                    </Box>
+                  </Badge>
+                </Tooltip>
+              </Stack>
+              <Stack>
+                <TourFilters
+                  open={openFilters.value}
+                  onOpen={openFilters.onTrue}
+                  onClose={openFilters.onFalse}
+                  filters={filters}
+                  onFilters={handleFilters}
+                  canReset={canReset}
+                  onResetFilters={handleResetFilters}
+                  serviceOptions={getDistinctValuesByKey(vehicleReports, 'Vehicle_Item')}
+                  keysOptions={['N/A', 'Need', 'Received', 'Returned']}
+                  vehiclesOptions={getDistinctValuesByKey(vehicleReports, 'Vehicle_Item')}
+                  statusOptions={getDistinctValuesByKey(onSiteInventoryList, 'Type')}
+                  tourGuideOptions={_tourGuides}
+                  destinationOptions={allDealerships}
+                  dateError={dateError}
+                  dataFilteredParam={dataFiltered}
+                />
+                {/* <Tooltip title="Filter" arrow>
+                  <Badge
+                    color="error"
+                    variant="dot"
+                    invisible={openFilterSmallSize}
+                    sx={{
+                      [`& .${badgeClasses.badge}`]: {
+                        top: 8,
+                        right: 8,
+                      },
+                    }}
+                  >
+                    <Box
+                      component={m.div}
+                      animate={
+                        {
+                          // rotate: [0, settings.open ? 0 : 360],
+                          // rotate: [0, 360],
+                        }
+                      }
+                      transition={{
+                        duration: 12,
+                        ease: 'linear',
+                        repeat: Infinity,
+                      }}
+                    >
+                      <IconButton
+                        component={m.button}
+                        whileTap="tap"
+                        whileHover="hover"
+                        variants={varHover(1.05)}
+                        aria-label="settings"
+                        // onClick={handleOpenFilterMobile}
+                        // onClick={popover.onOpen}
+                        sx={{
+                          width: 40,
+                          height: 40,
+                        }}
+                      >
+                        <Iconify icon="mi:filter" width={24} />
+                      </IconButton>
+                    </Box>
+                  </Badge>
+                </Tooltip> */}
+              </Stack>
+              {settings.themeMode === 'dark' && (
+                <>
+                  <Stack>
+                    <Tooltip title="Switch to Light Mode" arrow>
+                      <Badge
+                      // color="error"
+                      // variant="dot"
+                      // // invisible={true}
+                      // sx={{
+                      //   [`& .${badgeClasses.badge}`]: {
+                      //     top: 8,
+                      //     right: 8,
+                      //   },
+                      // }}
+                      >
+                        <Box
+                          component={m.div}
+                          animate={
+                            {
+                              // rotate: [0, settings.open ? 0 : 360],
+                              // rotate: [0, 360],
+                            }
+                          }
+                          transition={{
+                            duration: 12,
+                            ease: 'linear',
+                            repeat: Infinity,
+                          }}
+                        >
+                          <IconButton
+                            component={m.button}
+                            whileTap="tap"
+                            whileHover="hover"
+                            variants={varHover(1.05)}
+                            aria-label="settings"
+                            // onClick={handleOpenFilterMobile}
+                            onClick={(newValue) => settings.onUpdate('themeMode', 'light')}
+                            sx={{
+                              width: 40,
+                              height: 40,
+                            }}
+                          >
+                            {/* // mi:filter // solar:settings-bold-duotone */}
+                            <Iconify
+                              icon="material-symbols:light-mode-outline-rounded"
+                              width={24}
+                            />
+                          </IconButton>
+                        </Box>
+                      </Badge>
+                    </Tooltip>
+                  </Stack>
+                </>
+              )}
+              {settings.themeMode === 'light' && (
+                <>
+                  <Stack>
+                    <Tooltip title="Switch to Dark Mode" arrow>
+                      <Badge
+                      // color="error"
+                      // variant="dot"
+                      // // invisible={true}
+                      // sx={{
+                      //   [`& .${badgeClasses.badge}`]: {
+                      //     top: 8,
+                      //     right: 8,
+                      //   },
+                      // }}
+                      >
+                        <Box
+                          component={m.div}
+                          animate={
+                            {
+                              // rotate: [0, settings.open ? 0 : 360],
+                              // rotate: [0, 360],
+                            }
+                          }
+                          transition={{
+                            duration: 12,
+                            ease: 'linear',
+                            repeat: Infinity,
+                          }}
+                        >
+                          <IconButton
+                            component={m.button}
+                            whileTap="tap"
+                            whileHover="hover"
+                            variants={varHover(1.05)}
+                            aria-label="settings"
+                            // onClick={handleOpenFilterMobile}
+                            onClick={(newValue) => settings.onUpdate('themeMode', 'dark')}
+                            sx={{
+                              width: 40,
+                              height: 40,
+                            }}
+                          >
+                            {/* // mi:filter // solar:settings-bold-duotone */}
+                            <Iconify icon="material-symbols:dark-mode-outline-rounded" width={24} />
+                          </IconButton>
+                        </Box>
+                      </Badge>
+                    </Tooltip>
+                  </Stack>
+                </>
+              )}
+            </Stack>
+          </Stack>
+        </>
+      )}
+      {lgUp && (
+        <>
+          <Stack
+            sx={{
+              justifyContent: 'space-between',
+              display: 'grid',
+              gridTemplateColumns: '1.5fr 1fr',
+            }}
+            spacing={1}
+            flexShrink={0}
+          >
+            <TourSearch
+              query={search.query}
+              results={search.results}
+              onSearch={handleSearch}
+              onFilters={handleFilters}
+              filters={filters}
+              hrefItem={(ID) => ID}
+            />
+            <Stack
+              direction={{
+                xs: 'row',
+                sm: 'row',
+                md: 'row',
+                lg: 'row',
+                xl: 'row',
+              }}
+              display={{
+                xs: 'flex',
+                sm: 'flex',
+                md: 'flex',
+                lg: 'flex',
+                xl: 'flex',
+              }}
+              sx={{ justifyContent: 'flex-end' }}
+            >
+              <TourSort
+                sort={sortBy}
+                onSort={handleSortBy}
+                sortOptions={INVENTORY_SORT_OPTIONS}
+                fieldName="Sort By"
+              />
+              <TourSort
+                sort={sortOrder}
+                onSort={handleSortOrder}
+                sortOptions={INVENTORY_SORT_ORDER_OPTIONS}
+                fieldName="Sort Order"
+              />
+              <TourFilters
+                open={openFilters.value}
+                onOpen={openFilters.onTrue}
+                onClose={openFilters.onFalse}
+                filters={filters}
+                onFilters={handleFilters}
+                canReset={canReset}
+                onResetFilters={handleResetFilters}
+                serviceOptions={getDistinctValuesByKey(vehicleReports, 'Vehicle_Item')}
+                keysOptions={['N/A', 'Need', 'Received', 'Returned']}
+                vehiclesOptions={getDistinctValuesByKey(vehicleReports, 'Vehicle_Item')}
+                statusOptions={getDistinctValuesByKey(onSiteInventoryList, 'Type')}
+                tourGuideOptions={_tourGuides}
+                destinationOptions={allDealerships}
+                dateError={dateError}
+                dataFilteredParam={dataFiltered}
+              />
+              {settings.themeMode === 'dark' && (
+                <>
+                  <Stack>
+                    <Tooltip title="Switch to Light Mode" arrow>
+                      <Badge
+                      // color="error"
+                      // variant="dot"
+                      // // invisible={true}
+                      // sx={{
+                      //   [`& .${badgeClasses.badge}`]: {
+                      //     top: 8,
+                      //     right: 8,
+                      //   },
+                      // }}
+                      >
+                        <Box
+                          component={m.div}
+                          animate={
+                            {
+                              // rotate: [0, settings.open ? 0 : 360],
+                              // rotate: [0, 360],
+                            }
+                          }
+                          transition={{
+                            duration: 12,
+                            ease: 'linear',
+                            repeat: Infinity,
+                          }}
+                        >
+                          <IconButton
+                            component={m.button}
+                            whileTap="tap"
+                            whileHover="hover"
+                            variants={varHover(1.05)}
+                            aria-label="settings"
+                            // onClick={handleOpenFilterMobile}
+                            onClick={(newValue) => settings.onUpdate('themeMode', 'light')}
+                            sx={{
+                              width: 40,
+                              height: 40,
+                            }}
+                          >
+                            {/* // mi:filter // solar:settings-bold-duotone */}
+                            <Iconify
+                              icon="material-symbols:light-mode-outline-rounded"
+                              width={24}
+                            />
+                          </IconButton>
+                        </Box>
+                      </Badge>
+                    </Tooltip>
+                  </Stack>
+                </>
+              )}
+              {settings.themeMode === 'light' && (
+                <>
+                  <Stack>
+                    <Tooltip title="Switch to Dark Mode" arrow>
+                      <Badge
+                      // color="error"
+                      // variant="dot"
+                      // // invisible={true}
+                      // sx={{
+                      //   [`& .${badgeClasses.badge}`]: {
+                      //     top: 8,
+                      //     right: 8,
+                      //   },
+                      // }}
+                      >
+                        <Box
+                          component={m.div}
+                          animate={
+                            {
+                              // rotate: [0, settings.open ? 0 : 360],
+                              // rotate: [0, 360],
+                            }
+                          }
+                          transition={{
+                            duration: 12,
+                            ease: 'linear',
+                            repeat: Infinity,
+                          }}
+                        >
+                          <IconButton
+                            component={m.button}
+                            whileTap="tap"
+                            whileHover="hover"
+                            variants={varHover(1.05)}
+                            aria-label="settings"
+                            // onClick={handleOpenFilterMobile}
+                            onClick={(newValue) => settings.onUpdate('themeMode', 'dark')}
+                            sx={{
+                              width: 40,
+                              height: 40,
+                            }}
+                          >
+                            {/* // mi:filter // solar:settings-bold-duotone */}
+                            <Iconify icon="material-symbols:dark-mode-outline-rounded" width={24} />
+                          </IconButton>
+                        </Box>
+                      </Badge>
+                    </Tooltip>
+                  </Stack>
+                </>
+              )}
+            </Stack>
+          </Stack>
+        </>
+      )}
 
-        <Stack
-          direction={{
-            xs: 'column',
-            sm: 'column',
-            md: 'row',
-            lg: 'row',
-            xl: 'row',
+      <CustomPopover open={popover.open} onClose={popover.onClose} sx={{ width: 220 }}>
+        {/* <MenuItem
+          onClick={() => {
+            popover.onClose();
           }}
-          display={{
-            xs: 'inline-table',
-            sm: 'inline-table',
-            md: 'flex',
-            lg: 'flex',
-            xl: 'flex',
-          }}
-          spacing={1}
-          flexShrink={0}
         >
+          <Button
+            disableRipple
+            color="inherit"
+            endIcon={
+              <Badge color="error" variant="dot" invisible={!canReset}>
+                <Iconify icon="ic:round-filter-list" />
+              </Badge>
+            }
+            onClick={openFilters.onTrue}
+          >
+            Filters
+          </Button>
+        </MenuItem> */}
+        <Stack>
           <TourSort
             sort={sortBy}
             onSort={handleSortBy}
@@ -314,39 +662,23 @@ export default function TourListView() {
             sortOptions={INVENTORY_SORT_ORDER_OPTIONS}
             fieldName="Sort Order"
           />
-          <TourFilters
-            open={openFilters.value}
-            onOpen={openFilters.onTrue}
-            onClose={openFilters.onFalse}
-            filters={filters}
-            onFilters={handleFilters}
-            canReset={canReset}
-            onResetFilters={handleResetFilters}
-            serviceOptions={getDistinctValuesByKey(vehicleReports, 'Vehicle_Item')}
-            keysOptions={['N/A', 'Need', 'Received', 'Returned']}
-            vehiclesOptions={getDistinctValuesByKey(vehicleReports, 'Vehicle_Item')}
-            statusOptions={getDistinctValuesByKey(onSiteInventoryList, 'Type')}
-            tourGuideOptions={_tourGuides}
-            destinationOptions={dataFiltered?.allData}
-            dateError={dateError}
-            dataFilteredParam={dataFiltered}
-          />
-          {settings.themeMode === 'light' && (
-            <>
-              <Tooltip title="Dark Mode" arrow>
-                <Switch onChange={(newValue) => settings.onUpdate('themeMode', 'dark')} />
-              </Tooltip>
-            </>
-          )}
-          {settings.themeMode === 'dark' && (
-            <>
-              <Tooltip title="Light Mode" arrow>
-                <Switch checked onChange={(newValue) => settings.onUpdate('themeMode', 'light')} />
-              </Tooltip>
-            </>
-          )}
         </Stack>
-      </Stack>
+
+        {/* {settings.themeMode === 'light' && (
+          <>
+            <Tooltip title="Dark Mode" arrow>
+              <Switch onChange={(newValue) => settings.onUpdate('themeMode', 'dark')} />
+            </Tooltip>
+          </>
+        )}
+        {settings.themeMode === 'dark' && (
+          <>
+            <Tooltip title="Light Mode" arrow>
+              <Switch checked onChange={(newValue) => settings.onUpdate('themeMode', 'light')} />
+            </Tooltip>
+          </>
+        )} */}
+      </CustomPopover>
     </Box>
   );
 
@@ -390,12 +722,13 @@ export default function TourListView() {
       <Stack
         spacing={2.5}
         sx={{
-          mt: { xs: 21, sm: 18, md: 8 },
-          mb: { xs: 2, sm: 2, md: 2 },
+          pt: { xs: 5, sm: 4, md: 4, lg: 2 },
+          mb: { xs: 2, sm: 2, md: 2, lg: 2 },
         }}
       >
         {canReset && renderResults}
       </Stack>
+      {/* // SCREEN ERROR */}
       {/* {renderFilters}
       {canReset && renderResults} */}
       {notFound && <EmptyContent title="No Data" filled sx={{ py: 10 }} />}
@@ -460,12 +793,23 @@ const applyFilter = ({
     console.log('newServicesFilteredInputData', newServicesFilteredInputData);
     inputData = newServicesFilteredInputData;
   }
+
   if (ID.length) {
     const IDsFiltered = inputData?.allData.filter((tour) => ID.includes(tour.Car_FullName));
     console.log('IDsFiltered', IDsFiltered);
     const newIDsFilteredInputData = paginate(IDsFiltered, list_page_param);
     console.log('newIDsFilteredInputData', newIDsFilteredInputData);
     inputData = newIDsFilteredInputData;
+  }
+
+  if (destination.length) {
+    const destinationFiltered = inputData?.allData.filter((tour) =>
+      destination.includes(tour['Dealer.Dealer_Name'])
+    );
+    console.log('destinationFiltered', destinationFiltered);
+    const newDestinationFilteredInputData = paginate(destinationFiltered, list_page_param);
+    console.log('newDestinationFilteredInputData', newDestinationFilteredInputData);
+    inputData = newDestinationFilteredInputData;
   }
 
   console.log('FINAL_INPUT', inputData);

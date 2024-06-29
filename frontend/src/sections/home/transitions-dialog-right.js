@@ -29,6 +29,7 @@ export default function TransitionsDialogRight() {
   );
 
   const [openForm, setOpenForm] = useState(swipeRightState);
+  const [alreadyKeyNeeded, setAlreadyKeyNeeded] = useState(false);
 
   useEffect(() => {
     // console.log('carData Left', swipeData);
@@ -41,6 +42,7 @@ export default function TransitionsDialogRight() {
   }, [swipeRightState]);
   useEffect(() => {
     // console.log('carData Right', carData);
+
     const config = {};
     config.appName = loginUserState?.appLinkName;
     config.reportName = 'On_Site_Inventory';
@@ -58,7 +60,12 @@ export default function TransitionsDialogRight() {
       await dispatch(updateRecord(config));
       // ...
     };
-    updateRecordResp();
+    if (swipeData?.Keys !== 'Need') {
+      updateRecordResp();
+    } else {
+      console.log('NO ACTION. ALREADY ADDED TO KEY NEEDED.');
+      setAlreadyKeyNeeded(true);
+    }
   }, [loginUserState, swipeData, dispatch]);
   const handleClose = () => {
     dispatch(handleChangeState({ name: 'swipeRightState', value: false }));
@@ -72,12 +79,16 @@ export default function TransitionsDialogRight() {
         </DialogTitle>
         <DialogContent sx={{ pb: 3 }}>
           <Typography sx={{ mb: 3, mt: 3, textAlign: 'center' }}>
-            {addingKeysNeededLoading ? 'Adding to Keys Needed' : 'Success! Added to Keys Needed'}
+            {!alreadyKeyNeeded && addingKeysNeededLoading && 'Adding to Keys Needed'}
+
+            {!alreadyKeyNeeded && !addingKeysNeededLoading && 'Success! Added to Keys Needed'}
+            {alreadyKeyNeeded &&
+              'This vehicle are already in added in Keys Needed. Please see the history for more details.'}
           </Typography>
-          {addingKeysNeededLoading && <LoadingScreen />}
+          {!alreadyKeyNeeded && addingKeysNeededLoading && <LoadingScreen />}
         </DialogContent>
         {/* onClick={handleClose} */}
-        {!addingKeysNeededLoading && (
+        {(!addingKeysNeededLoading || alreadyKeyNeeded) && (
           <DialogActions
             sx={{
               borderTop: `dashed 1px ${theme.palette.divider}`,
